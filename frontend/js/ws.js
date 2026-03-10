@@ -1,5 +1,3 @@
-// CHANGE THIS to your Railway backend WS URL
-// If backend is https://xxx.up.railway.app, WS is wss://xxx.up.railway.app
 export const WS_URL = "wss://your-railway-backend-url.up.railway.app";
 
 let socket = null;
