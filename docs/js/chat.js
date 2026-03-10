@@ -1,17 +1,21 @@
-import { state, requireAuth, setCurrentUserLabel, setUserPfp } from "./ui.js";
-import { connectWS, onWSMessage, sendWSMessage } from "./ws.js";
-import { loadFriends, loadFriendRequests, setupFriendActions } from "./friends.js";
-import { loadRooms, setupRoomActions } from "./rooms.js";
-import { loadDMList } from "./dms.js";
+// FIXED IMPORT PATHS — GitHub Pages SAFE
+import { state, requireAuth, setCurrentUserLabel, setUserPfp } from "/js/ui.js";
+import { connectWS, onWSMessage, sendWSMessage } from "/js/ws.js";
+import { loadFriends, loadFriendRequests, setupFriendActions } from "/js/friends.js";
+import { loadRooms, setupRoomActions } from "/js/rooms.js";
+import { loadDMList } from "/js/dms.js";
 
+// API base
 export const API_BASE = "https://i9.up.railway.app/api/";
 
+// DOM elements
 const messagesEl = document.getElementById("messages");
 const sendBtn = document.getElementById("sendBtn");
 const msgInput = document.getElementById("messageInput");
 const logoutBtn = document.getElementById("logoutBtn");
 const changePfpBtn = document.getElementById("changePfpBtn");
 
+// Auth + UI init
 requireAuth();
 setCurrentUserLabel();
 connectWS();
@@ -24,6 +28,7 @@ loadDMList();
 setupFriendActions();
 setupRoomActions();
 
+// Logout
 if (logoutBtn) {
   logoutBtn.onclick = () => {
     localStorage.removeItem("token");
@@ -32,11 +37,12 @@ if (logoutBtn) {
   };
 }
 
+// Change PFP
 if (changePfpBtn) {
   changePfpBtn.onclick = async () => {
     const url = prompt("Enter image URL for your profile picture:");
     if (!url) return;
-    await fetch(`${API_BASE}/profile/pfp`, {
+    await fetch(`${API_BASE}profile/pfp`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -48,6 +54,7 @@ if (changePfpBtn) {
   };
 }
 
+// Send message
 if (sendBtn && msgInput) {
   sendBtn.onclick = sendMessage;
   msgInput.onkeydown = e => {
@@ -55,29 +62,22 @@ if (sendBtn && msgInput) {
   };
 }
 
+// Load profile
 async function initProfile() {
-  const res = await fetch(`${API_BASE}/profile/${state.currentUser}`);
+  const res = await fetch(`${API_BASE}profile/${state.currentUser}`);
   const data = await res.json();
   if (data && data.pfp) {
     setUserPfp(data.pfp);
   }
 }
 
-// presence: online/away/offline
+// Presence updates
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    sendWSMessage({
-      type: "status",
-      user: state.currentUser,
-      status: "away"
-    });
-  } else {
-    sendWSMessage({
-      type: "status",
-      user: state.currentUser,
-      status: "online"
-    });
-  }
+  sendWSMessage({
+    type: "status",
+    user: state.currentUser,
+    status: document.hidden ? "away" : "online"
+  });
 });
 
 window.addEventListener("beforeunload", () => {
@@ -88,8 +88,9 @@ window.addEventListener("beforeunload", () => {
   });
 });
 
+// Load messages
 export async function loadMessagesForRoom(roomId) {
-  const res = await fetch(`${API_BASE}/messages/room/${roomId}`, {
+  const res = await fetch(`${API_BASE}messages/room/${roomId}`, {
     headers: { Authorization: state.token }
   });
   const data = await res.json();
@@ -97,19 +98,21 @@ export async function loadMessagesForRoom(roomId) {
 }
 
 export async function loadMessagesForDM(dmId) {
-  const res = await fetch(`${API_BASE}/messages/dm/${dmId}`, {
+  const res = await fetch(`${API_BASE}messages/dm/${dmId}`, {
     headers: { Authorization: state.token }
   });
   const data = await res.json();
   renderMessages(data);
 }
 
+// Render messages
 function renderMessages(list) {
   if (!messagesEl) return;
   messagesEl.innerHTML = "";
   list.forEach(m => appendMessage(m));
 }
 
+// Send message payload
 function sendMessage() {
   const text = msgInput.value.trim();
   if (!text) return;
@@ -127,6 +130,7 @@ function sendMessage() {
   msgInput.value = "";
 }
 
+// WS incoming messages
 onWSMessage(msg => {
   if (msg.type === "status") return;
 
@@ -138,6 +142,7 @@ onWSMessage(msg => {
   }
 });
 
+// Append message to UI
 function appendMessage(m) {
   if (!messagesEl) return;
 
