@@ -1,14 +1,16 @@
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE,
-  password TEXT
+  password TEXT,
+  pfp TEXT DEFAULT 'https://i.imgur.com/0y8Ftya.png',
+  status TEXT DEFAULT 'offline'
 );
 
 CREATE TABLE IF NOT EXISTS friends (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   requester INTEGER,
   receiver INTEGER,
-  status TEXT, -- pending, accepted
+  status TEXT,
   FOREIGN KEY(requester) REFERENCES users(id),
   FOREIGN KEY(receiver) REFERENCES users(id)
 );
@@ -16,9 +18,7 @@ CREATE TABLE IF NOT EXISTS friends (
 CREATE TABLE IF NOT EXISTS dms (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   user1 INTEGER,
-  user2 INTEGER,
-  FOREIGN KEY(user1) REFERENCES users(id),
-  FOREIGN KEY(user2) REFERENCES users(id)
+  user2 INTEGER
 );
 
 CREATE TABLE IF NOT EXISTS rooms (
