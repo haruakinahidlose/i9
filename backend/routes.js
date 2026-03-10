@@ -152,3 +152,18 @@ router.get("/messages/dm/:id", auth, async (req, res) => {
 });
 
 export default router;
+// Update profile picture
+router.post("/profile/pfp", auth, async (req, res) => {
+  const { url } = req.body;
+  await db.run("UPDATE users SET pfp=? WHERE id=?", [url, req.user.id]);
+  res.json({ success: true });
+});
+
+// Get user info (pfp + status)
+router.get("/profile/:username", async (req, res) => {
+  const user = await db.get(
+    "SELECT username, pfp, status FROM users WHERE username=?",
+    [req.params.username]
+  );
+  res.json(user || {});
+});
