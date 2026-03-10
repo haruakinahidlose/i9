@@ -1,5 +1,6 @@
 import { state, renderList, createListItem } from "./ui.js";
 import { API_BASE } from "./chat.js";
+import { openDM } from "./dms.js";
 
 export async function loadFriends() {
   const res = await fetch(`${API_BASE}/friends/list`, {
@@ -10,20 +11,51 @@ export async function loadFriends() {
   renderFriends();
 }
 
+export async function loadFriendRequests() {
+  const res = await fetch(`${API_BASE}/friends/requests`, {
+    headers: { Authorization: state.token }
+  });
+  const data = await res.json();
+  state.friendRequests = data;
+  renderFriendRequests();
+}
+
 export function renderFriends() {
   renderList("friendsList", state.friends, f =>
     createListItem(f.username, {
-      onClick: () => {
-        // open DM from sidebar
-        import("./dms.js").then(m => m.openDM(f.username));
-      }
+      username: f.username,
+      pfp: f.pfp,
+      status: f.status || "offline",
+      onClick: () => openDM(f.username)
     })
   );
 }
 
-// friend requests are not fully exposed in backend yet, but we can still
-// show placeholder or extend backend later.
-// For now, we just support sending friend requests.
+export function renderFriendRequests() {
+  renderList("friendRequests", state.friendRequests, r =>
+    createListItem(r.username, {
+      buttons: [
+        {
+          label: "✓",
+          onClick: () => acceptRequest(r.id)
+        }
+      ]
+    })
+  );
+}
+
+async function acceptRequest(id) {
+  await fetch(`${API_BASE}/friends/accept`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: state.token
+    },
+    body: JSON.stringify({ id })
+  });
+  await loadFriendRequests();
+  await loadFriends();
+}
 
 export function setupFriendActions() {
   const addBtn = document.getElementById("addFriendBtn");
@@ -45,5 +77,6 @@ export function setupFriendActions() {
     });
 
     input.value = "";
+    await loadFriendRequests();
   };
 }
