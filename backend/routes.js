@@ -6,7 +6,7 @@ import db from "./db.js";
 const router = express.Router();
 const SECRET = "nebula_secret";
 
-// Middleware to decode JWT
+// auth middleware
 function auth(req, res, next) {
   const token = req.headers.authorization;
   if (!token) return res.json({ error: "No token" });
@@ -19,16 +19,22 @@ function auth(req, res, next) {
   }
 }
 
-/* ---------------- AUTH ---------------- */
+/* ---------- AUTH ---------- */
 
 router.post("/signup", async (req, res) => {
   const { username, password } = req.body;
 
+  const existing = await db.get(
+    "SELECT id FROM users WHERE username=?",
+    [username]
+  );
+  if (existing) return res.json({ error: "Username taken" });
+
   const hashed = await bcrypt.hash(password, 10);
-  await db.run("INSERT INTO users (username, password) VALUES (?, ?)", [
-    username,
-    hashed
-  ]);
+  await db.run(
+    "INSERT INTO users (username, password) VALUES (?, ?)",
+    [username, hashed]
+  );
 
   res.json({ success: true });
 });
@@ -36,10 +42,10 @@ router.post("/signup", async (req, res) => {
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  const user = await db.get("SELECT * FROM users WHERE username = ?", [
-    username
-  ]);
-
+  const user = await db.get(
+    "SELECT * FROM users WHERE username=?",
+    [username]
+  );
   if (!user) return res.json({ error: "User not found" });
 
   const match = await bcrypt.compare(password, user.password);
@@ -49,14 +55,31 @@ router.post("/login", async (req, res) => {
   res.json({ token });
 });
 
-/* ---------------- FRIENDS ---------------- */
+/* ---------- PROFILE / PFP ---------- */
+
+router.post("/profile/pfp", auth, async (req, res) => {
+  const { url } = req.body;
+  await db.run("UPDATE users SET pfp=? WHERE id=?", [url, req.user.id]);
+  res.json({ success: true });
+});
+
+router.get("/profile/:username", async (req, res) => {
+  const user = await db.get(
+    "SELECT username, pfp, status FROM users WHERE username=?",
+    [req.params.username]
+  );
+  res.json(user || {});
+});
+
+/* ---------- FRIENDS ---------- */
 
 router.post("/friends/request", auth, async (req, res) => {
   const { to } = req.body;
 
-  const receiver = await db.get("SELECT id FROM users WHERE username = ?", [
-    to
-  ]);
+  const receiver = await db.get(
+    "SELECT id FROM users WHERE username=?",
+    [to]
+  );
   if (!receiver) return res.json({ error: "User not found" });
 
   await db.run(
@@ -70,7 +93,10 @@ router.post("/friends/request", auth, async (req, res) => {
 router.post("/friends/accept", auth, async (req, res) => {
   const { id } = req.body;
 
-  await db.run("UPDATE friends SET status='accepted' WHERE id=?", [id]);
+  await db.run(
+    "UPDATE friends SET status='accepted' WHERE id=? AND receiver=?",
+    [id, req.user.id]
+  );
 
   res.json({ success: true });
 });
@@ -78,7 +104,7 @@ router.post("/friends/accept", auth, async (req, res) => {
 router.get("/friends/list", auth, async (req, res) => {
   const rows = await db.all(
     `
-    SELECT f.id, u.username, f.status
+    SELECT f.id, u.username, u.pfp, u.status
     FROM friends f
     JOIN users u ON 
       (u.id = f.requester AND f.receiver = ?) OR
@@ -91,12 +117,29 @@ router.get("/friends/list", auth, async (req, res) => {
   res.json(rows);
 });
 
-/* ---------------- DMS ---------------- */
+router.get("/friends/requests", auth, async (req, res) => {
+  const rows = await db.all(
+    `
+    SELECT f.id, u.username
+    FROM friends f
+    JOIN users u ON u.id = f.requester
+    WHERE f.receiver=? AND f.status='pending'
+  `,
+    [req.user.id]
+  );
+
+  res.json(rows);
+});
+
+/* ---------- DMS ---------- */
 
 router.post("/dms/open", auth, async (req, res) => {
   const { user } = req.body;
 
-  const other = await db.get("SELECT id FROM users WHERE username = ?", [user]);
+  const other = await db.get(
+    "SELECT id FROM users WHERE username=?",
+    [user]
+  );
   if (!other) return res.json({ error: "User not found" });
 
   let dm = await db.get(
@@ -105,20 +148,20 @@ router.post("/dms/open", auth, async (req, res) => {
   );
 
   if (!dm) {
-    await db.run("INSERT INTO dms (user1, user2) VALUES (?, ?)", [
-      req.user.id,
-      other.id
-    ]);
-    dm = await db.get("SELECT * FROM dms WHERE user1=? AND user2=?", [
-      req.user.id,
-      other.id
-    ]);
+    await db.run(
+      "INSERT INTO dms (user1, user2) VALUES (?, ?)",
+      [req.user.id, other.id]
+    );
+    dm = await db.get(
+      "SELECT * FROM dms WHERE user1=? AND user2=?",
+      [req.user.id, other.id]
+    );
   }
 
   res.json(dm);
 });
 
-/* ---------------- ROOMS ---------------- */
+/* ---------- ROOMS ---------- */
 
 router.post("/rooms/create", auth, async (req, res) => {
   const { name } = req.body;
@@ -133,11 +176,17 @@ router.get("/rooms", auth, async (req, res) => {
   res.json(rooms);
 });
 
-/* ---------------- MESSAGES ---------------- */
+/* ---------- MESSAGES ---------- */
 
 router.get("/messages/room/:id", auth, async (req, res) => {
   const msgs = await db.all(
-    "SELECT * FROM messages WHERE roomId=? ORDER BY timestamp ASC",
+    `
+    SELECT m.id, m.content, m.timestamp, u.username as sender, u.pfp
+    FROM messages m
+    JOIN users u ON u.id = m.sender
+    WHERE m.roomId=?
+    ORDER BY m.timestamp ASC
+  `,
     [req.params.id]
   );
   res.json(msgs);
@@ -145,25 +194,16 @@ router.get("/messages/room/:id", auth, async (req, res) => {
 
 router.get("/messages/dm/:id", auth, async (req, res) => {
   const msgs = await db.all(
-    "SELECT * FROM messages WHERE dmId=? ORDER BY timestamp ASC",
+    `
+    SELECT m.id, m.content, m.timestamp, u.username as sender, u.pfp
+    FROM messages m
+    JOIN users u ON u.id = m.sender
+    WHERE m.dmId=?
+    ORDER BY m.timestamp ASC
+  `,
     [req.params.id]
   );
   res.json(msgs);
 });
 
 export default router;
-// Update profile picture
-router.post("/profile/pfp", auth, async (req, res) => {
-  const { url } = req.body;
-  await db.run("UPDATE users SET pfp=? WHERE id=?", [url, req.user.id]);
-  res.json({ success: true });
-});
-
-// Get user info (pfp + status)
-router.get("/profile/:username", async (req, res) => {
-  const user = await db.get(
-    "SELECT username, pfp, status FROM users WHERE username=?",
-    [req.params.username]
-  );
-  res.json(user || {});
-});
