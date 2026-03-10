@@ -1,6 +1,6 @@
 // CHANGE THIS to your Railway backend WS URL
 // If backend is https://xxx.up.railway.app, WS is wss://xxx.up.railway.app
-const WS_URL = "wss://your-railway-backend-url.up.railway.app";
+export const WS_URL = "wss://your-railway-backend-url.up.railway.app";
 
 let socket = null;
 let wsHandlers = [];
@@ -19,7 +19,6 @@ export function connectWS() {
 
   socket.onclose = () => {
     console.log("WS closed");
-    // simple reconnect
     setTimeout(connectWS, 2000);
   };
 }
