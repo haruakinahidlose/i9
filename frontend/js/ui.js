@@ -20,6 +20,11 @@ export function setCurrentUserLabel() {
   if (el) el.textContent = state.currentUser || "Unknown";
 }
 
+export function setUserPfp(url) {
+  const el = document.getElementById("userPfp");
+  if (el && url) el.src = url;
+}
+
 export function setChatTitle(text) {
   const el = document.getElementById("chatTitle");
   if (el) el.textContent = text;
@@ -38,15 +43,37 @@ export function renderList(containerId, items, renderItem) {
 export function createListItem(label, options = {}) {
   const div = document.createElement("div");
   div.className = "list-item";
-  div.textContent = label;
-  if (options.onClick) {
-    div.onclick = options.onClick;
-  }
-  if (options.buttons) {
-    div.textContent = "";
+  div.dataset.user = options.username || "";
+
+  if (options.pfp || options.status) {
+    const left = document.createElement("div");
+    left.style.display = "flex";
+    left.style.alignItems = "center";
+    left.style.gap = "4px";
+
+    if (options.status) {
+      const dot = document.createElement("span");
+      dot.className = `status-dot ${options.status}`;
+      left.appendChild(dot);
+    }
+
+    if (options.pfp) {
+      const img = document.createElement("img");
+      img.src = options.pfp;
+      img.className = "pfp small";
+      left.appendChild(img);
+    }
+
     const span = document.createElement("span");
     span.textContent = label;
-    div.appendChild(span);
+    left.appendChild(span);
+
+    div.appendChild(left);
+  } else {
+    div.textContent = label;
+  }
+
+  if (options.buttons) {
     options.buttons.forEach(btnDef => {
       const b = document.createElement("button");
       b.textContent = btnDef.label;
@@ -57,5 +84,16 @@ export function createListItem(label, options = {}) {
       div.appendChild(b);
     });
   }
+
+  if (options.onClick) {
+    div.onclick = options.onClick;
+  }
+
   return div;
+}
+
+export function updateUserStatus(username, status) {
+  const el = document.querySelector(`[data-user="${username}"] .status-dot`);
+  if (!el) return;
+  el.className = `status-dot ${status}`;
 }
