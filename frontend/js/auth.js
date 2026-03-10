@@ -1,4 +1,4 @@
-// CHANGE THIS to your Railway backend URL
+// CHANGE THIS to your backend URL
 const API_BASE = "https://your-railway-backend-url.up.railway.app/api";
 
 const loginTab = document.getElementById("loginTab");
@@ -68,7 +68,7 @@ if (signupBtn) {
     if (data.error) {
       errorEl.textContent = data.error;
     } else {
-      // auto-login after signup
+      // auto-login
       const loginRes = await fetch(`${API_BASE}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
