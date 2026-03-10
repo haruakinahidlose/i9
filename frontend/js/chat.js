@@ -128,10 +128,7 @@ function sendMessage() {
 }
 
 onWSMessage(msg => {
-  if (msg.type === "status") {
-    // presence handled in ui.js if you want to wire it
-    return;
-  }
+  if (msg.type === "status") return;
 
   if (msg.type === "room" && msg.roomId === state.currentRoom) {
     appendMessage(msg);
