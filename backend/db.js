@@ -1,9 +1,17 @@
 import sqlite3 from "sqlite3";
 import { readFileSync } from "fs";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
-const db = new sqlite3.Database("./database.db");
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const schema = readFileSync("./schema.sql", "utf8");
+// Correct paths for Railway
+const dbPath = __dirname + "/database.db";
+const schemaPath = __dirname + "/schema.sql";
+
+const db = new sqlite3.Database(dbPath);
+
+const schema = readFileSync(schemaPath, "utf8");
 db.exec(schema);
 
 export default {
