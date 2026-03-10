@@ -4,7 +4,7 @@ import { loadFriends, loadFriendRequests, setupFriendActions } from "./friends.j
 import { loadRooms, setupRoomActions } from "./rooms.js";
 import { loadDMList } from "./dms.js";
 
-export const API_BASE = "https://your-railway-backend-url.up.railway.app/api";
+export const API_BASE = "https://i9.up.railway.app/api";
 
 const messagesEl = document.getElementById("messages");
 const sendBtn = document.getElementById("sendBtn");
