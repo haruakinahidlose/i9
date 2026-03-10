@@ -1,0 +1,37 @@
+CREATE TABLE IF NOT EXISTS users (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT UNIQUE,
+  password TEXT
+);
+
+CREATE TABLE IF NOT EXISTS friends (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  requester INTEGER,
+  receiver INTEGER,
+  status TEXT, -- pending, accepted
+  FOREIGN KEY(requester) REFERENCES users(id),
+  FOREIGN KEY(receiver) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS dms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user1 INTEGER,
+  user2 INTEGER,
+  FOREIGN KEY(user1) REFERENCES users(id),
+  FOREIGN KEY(user2) REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS rooms (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  roomId INTEGER,
+  dmId INTEGER,
+  sender INTEGER,
+  content TEXT,
+  timestamp INTEGER,
+  FOREIGN KEY(sender) REFERENCES users(id)
+);
