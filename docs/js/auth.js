@@ -1,4 +1,5 @@
-import { API_BASE } from "./chat.js";
+// Standalone API base for login/signup ONLY
+export const API_BASE = "https://i9.up.railway.app/api";
 
 // Tabs
 const loginTab = document.getElementById("loginTab");
