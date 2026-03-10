@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NebulaShift — App</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="app-body">
+  <div class="app-root">
+    <!-- LEFT: Friends / DMs / Rooms -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <h2>Friends</h2>
+        <div class="friend-actions">
+          <input id="addFriendInput" placeholder="Add friend by username" />
+          <button id="addFriendBtn">+</button>
+        </div>
+        <div id="friendsList" class="list"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>Friend Requests</h2>
+        <div id="friendRequests" class="list"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>DMs</h2>
+        <div id="dmList" class="list"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <h2>Rooms</h2>
+        <div class="room-actions">
+          <input id="newRoomInput" placeholder="New room name" />
+          <button id="createRoomBtn">+</button>
+        </div>
+        <div id="roomList" class="list"></div>
+      </div>
+
+      <div class="user-bar">
+        <span id="currentUser"></span>
+        <button id="logoutBtn">Logout</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: Chat -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <h2 id="chatTitle">Select a DM or Room</h2>
+      </div>
+      <div id="messages" class="messages"></div>
+      <div class="chat-input">
+        <input id="messageInput" placeholder="Type a message..." />
+        <button id="sendBtn">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/ws.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/friends.js"></script>
+  <script src="js/dms.js"></script>
+  <script src="js/rooms.js"></script>
+  <script src="js/chat.js"></script>
+</body>
+</html>
