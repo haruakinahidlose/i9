@@ -19,8 +19,7 @@ export async function openDM(username) {
 }
 
 export async function loadDMList() {
-  // simple: DM list is derived from messages or we can just show last opened
-  // For now, we just show "active DM" if any
+  // simple placeholder: show current DM if any
   const list = [];
   if (state.currentDM) {
     list.push({ id: state.currentDM, label: "Current DM" });
@@ -28,7 +27,6 @@ export async function loadDMList() {
   renderList("dmList", list, item =>
     createListItem(item.label, {
       onClick: () => {
-        // re-open DM
         if (state.currentDM) {
           loadMessagesForDM(state.currentDM);
         }
