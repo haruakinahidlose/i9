@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>NebulaShift — Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth-body">
+  <div class="auth-container">
+    <h1>NebulaShift</h1>
+
+    <div class="auth-tabs">
+      <button id="loginTab" class="active">Login</button>
+      <button id="signupTab">Sign Up</button>
+    </div>
+
+    <div id="loginForm" class="auth-form">
+      <input id="loginUsername" placeholder="Username" />
+      <input id="loginPassword" type="password" placeholder="Password" />
+      <button id="loginBtn">Login</button>
+      <p id="loginError" class="error"></p>
+    </div>
+
+    <div id="signupForm" class="auth-form hidden">
+      <input id="signupUsername" placeholder="Username" />
+      <input id="signupPassword" type="password" placeholder="Password" />
+      <button id="signupBtn">Create Account</button>
+      <p id="signupError" class="error"></p>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>
