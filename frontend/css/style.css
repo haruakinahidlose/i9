@@ -1,0 +1,259 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  background: #0b0b10;
+  color: #fff;
+}
+
+/* Auth */
+
+.auth-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.auth-container {
+  background: #151521;
+  padding: 24px;
+  border-radius: 8px;
+  width: 320px;
+  text-align: center;
+}
+
+.auth-container h1 {
+  margin-bottom: 16px;
+}
+
+.auth-tabs {
+  display: flex;
+  margin-bottom: 16px;
+}
+
+.auth-tabs button {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+  background: #1f1f2b;
+  color: #aaa;
+}
+
+.auth-tabs button.active {
+  background: #3b3bff;
+  color: #fff;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.auth-form input {
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  background: #1f1f2b;
+  color: #fff;
+}
+
+.auth-form button {
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  background: #3b3bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+.error {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+}
+
+/* App */
+
+.app-body {
+  height: 100vh;
+}
+
+.app-root {
+  display: flex;
+  height: 100%;
+}
+
+/* Sidebar */
+
+.sidebar {
+  width: 280px;
+  background: #151521;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 8px;
+}
+
+.sidebar-section h2 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.sidebar-section {
+  background: #1b1b29;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.list {
+  max-height: 160px;
+  overflow-y: auto;
+  margin-top: 4px;
+}
+
+.friend-actions,
+.room-actions {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.friend-actions input,
+.room-actions input {
+  flex: 1;
+  padding: 4px;
+  border-radius: 4px;
+  border: none;
+  background: #252538;
+  color: #fff;
+  font-size: 0.8rem;
+}
+
+.friend-actions button,
+.room-actions button {
+  width: 32px;
+  border: none;
+  border-radius: 4px;
+  background: #3b3bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+.list-item {
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.list-item:hover {
+  background: #2a2a3f;
+}
+
+.list-item.active {
+  background: #3b3bff;
+}
+
+.list-item button {
+  margin-left: 4px;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.user-bar {
+  margin-top: auto;
+  padding: 8px;
+  background: #10101a;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+}
+
+.user-bar button {
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  background: #ff4b4b;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Chat */
+
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #10101a;
+}
+
+.chat-header {
+  padding: 12px;
+  border-bottom: 1px solid #222235;
+}
+
+.chat-header h2 {
+  font-size: 1rem;
+}
+
+.messages {
+  flex: 1;
+  padding: 12px;
+  overflow-y: auto;
+}
+
+.message {
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.message span.sender {
+  font-weight: 600;
+  color: #8aa4ff;
+  margin-right: 4px;
+}
+
+.chat-input {
+  display: flex;
+  padding: 8px;
+  border-top: 1px solid #222235;
+  gap: 8px;
+}
+
+.chat-input input {
+  flex: 1;
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  background: #1b1b29;
+  color: #fff;
+}
+
+.chat-input button {
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  background: #3b3bff;
+  color: #fff;
+  cursor: pointer;
+}
