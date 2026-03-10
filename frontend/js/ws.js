@@ -1,4 +1,4 @@
-export const WS_URL = "wss://your-railway-backend-url.up.railway.app";
+export const WS_URL = "wss://http://i9.up.railway.app";
 
 let socket = null;
 let wsHandlers = [];
