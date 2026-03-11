@@ -3,33 +3,32 @@
 <head>
   <meta charset="UTF-8" />
   <title>NebulaShift — Login</title>
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body class="auth-body">
   <div class="auth-container">
-    <h1>NebulaShift</h1>
+    <h1 class="logo">NebulaShift</h1>
 
-    <div class="auth-tabs">
-      <button id="loginTab" class="active">Login</button>
-      <button id="signupTab">Sign Up</button>
+    <div class="tabs">
+      <button id="loginTab" class="tab active">Login</button>
+      <button id="signupTab" class="tab">Sign Up</button>
     </div>
 
-    <div id="loginForm" class="auth-form">
-      <input id="loginUsername" placeholder="Username" />
-      <input id="loginPassword" type="password" placeholder="Password" />
-      <button id="loginBtn">Login</button>
-      <p id="loginError" class="error"></p>
+    <div id="loginForm">
+      <input id="loginUsername" class="input" placeholder="Username" />
+      <input id="loginPassword" class="input" type="password" placeholder="Password" />
+      <div id="loginError" class="error"></div>
+      <button id="loginBtn" class="primary-btn">Login</button>
     </div>
 
-    <div id="signupForm" class="auth-form hidden">
-      <input id="signupUsername" placeholder="Username" />
-      <input id="signupPassword" type="password" placeholder="Password" />
-      <button id="signupBtn">Create Account</button>
-      <p id="signupError" class="error"></p>
+    <div id="signupForm" class="hidden">
+      <input id="signupUsername" class="input" placeholder="Username" />
+      <input id="signupPassword" class="input" type="password" placeholder="Password" />
+      <div id="signupError" class="error"></div>
+      <button id="signupBtn" class="primary-btn">Create Account</button>
     </div>
   </div>
 
-  <!-- FIXED: must be a module -->
-  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="auth.js"></script>
 </body>
 </html>
