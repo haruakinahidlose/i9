@@ -12,14 +12,10 @@ export default {
   },
 
   get(query, params = []) {
-    return pool
-      .query(query, params)
-      .then(res => res.rows[0] || null);
+    return pool.query(query, params).then(res => res.rows[0] || null);
   },
 
   all(query, params = []) {
-    return pool
-      .query(query, params)
-      .then(res => res.rows);
+    return pool.query(query, params).then(res => res.rows);
   }
 };
