@@ -1,12 +1,14 @@
-const WS_URL = "wss://i9.up.railway.app";
+let ws;
 
-export function connectWS(onMessage) {
-  const token = localStorage.getItem("token");
-  const socket = new WebSocket(`${WS_URL}?token=${token}`);
+function setupWS() {
+  ws = new WebSocket("wss://i9.up.railway.app");
 
-  socket.onopen = () => console.log("WS connected");
-  socket.onmessage = (msg) => onMessage(JSON.parse(msg.data));
-  socket.onclose = () => console.log("WS disconnected");
+  ws.onopen = () => console.log("WS connected");
+  ws.onmessage = (msg) => handleWS(JSON.parse(msg.data));
+}
 
-  return socket;
+function handleWS(data) {
+  if (data.type === "message") {
+    addMessage(data);
+  }
 }
