@@ -2,24 +2,38 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>NebulaShift</title>
+  <title>NebulaShift — Login</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<div id="login">
-  <h1>NebulaShift</h1>
-  <input id="username" placeholder="Enter username">
-  <button id="loginBtn">Enter</button>
+<div class="auth-container">
+
+  <div class="tabs">
+    <button id="loginTab" class="active">Login</button>
+    <button id="signupTab">Sign Up</button>
+  </div>
+
+  <!-- LOGIN FORM -->
+  <div id="loginForm">
+    <h2>Login</h2>
+    <input id="loginUsername" placeholder="Username">
+    <input id="loginPassword" type="password" placeholder="Password">
+    <div id="loginError" class="error"></div>
+    <button id="loginBtn">Login</button>
+  </div>
+
+  <!-- SIGNUP FORM -->
+  <div id="signupForm" class="hidden">
+    <h2>Create Account</h2>
+    <input id="signupUsername" placeholder="Username">
+    <input id="signupPassword" type="password" placeholder="Password">
+    <div id="signupError" class="error"></div>
+    <button id="signupBtn">Sign Up</button>
+  </div>
+
 </div>
 
-<div id="app" style="display:none;">
-  <h2 id="welcome"></h2>
-  <textarea id="messages" readonly></textarea>
-  <input id="msgInput" placeholder="Type a message">
-  <button id="sendBtn">Send</button>
-</div>
-
-<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
 </body>
 </html>
