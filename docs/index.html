@@ -5,33 +5,29 @@
   <title>NebulaShift — Login</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
+<body class="auth-body">
 
-<div class="auth-container">
+<div class="auth-box">
+  <h1 class="auth-title">NebulaShift</h1>
 
-  <div class="tabs">
+  <div class="auth-tabs">
     <button id="loginTab" class="active">Login</button>
     <button id="signupTab">Sign Up</button>
   </div>
 
-  <!-- LOGIN FORM -->
   <div id="loginForm">
-    <h2>Login</h2>
     <input id="loginUsername" placeholder="Username">
     <input id="loginPassword" type="password" placeholder="Password">
-    <div id="loginError" class="error"></div>
-    <button id="loginBtn">Login</button>
+    <div id="loginError" class="auth-error"></div>
+    <button id="loginBtn" class="auth-btn">Login</button>
   </div>
 
-  <!-- SIGNUP FORM -->
   <div id="signupForm" class="hidden">
-    <h2>Create Account</h2>
     <input id="signupUsername" placeholder="Username">
     <input id="signupPassword" type="password" placeholder="Password">
-    <div id="signupError" class="error"></div>
-    <button id="signupBtn">Sign Up</button>
+    <div id="signupError" class="auth-error"></div>
+    <button id="signupBtn" class="auth-btn">Create Account</button>
   </div>
-
 </div>
 
 <script src="js/auth.js"></script>
