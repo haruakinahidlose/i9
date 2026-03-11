@@ -2,12 +2,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NebulaShift — App</title>
+  <title>NebulaShift</title>
+
+  <!-- Favicon (will cloak automatically) -->
+  <link id="dynamic-favicon" rel="icon" href="/i9/css/nebulashift.png">
+
   <link rel="stylesheet" href="/i9/css/style.css" />
 </head>
+
 <body class="app-body">
   <div class="app-root">
+
     <div class="sidebar">
+
       <div class="sidebar-section">
         <h2>Friends</h2>
         <div class="friend-actions">
@@ -46,21 +53,46 @@
           <button id="logoutBtn">Logout</button>
         </div>
       </div>
+
     </div>
 
     <div class="chat-area">
       <div class="chat-header">
         <h2 id="chatTitle">Select a DM or Room</h2>
       </div>
+
       <div id="messages" class="messages"></div>
+
       <div class="chat-input">
         <input id="messageInput" placeholder="Type a message..." />
         <button id="sendBtn">Send</button>
       </div>
     </div>
+
   </div>
 
-  <!-- FIXED PATH -->
+  <!-- TAB CLOAKING -->
+  <script>
+    const activeTitle = "NebulaShift";
+    const activeIcon = "/i9/css/nebulashift.png";
+
+    const cloakTitle = "Google";
+    const cloakIcon = "/i9/css/google.png";
+
+    const faviconEl = document.getElementById("dynamic-favicon");
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        document.title = cloakTitle;
+        faviconEl.href = cloakIcon;
+      } else {
+        document.title = activeTitle;
+        faviconEl.href = activeIcon;
+      }
+    });
+  </script>
+
+  <!-- MAIN APP -->
   <script type="module" src="/i9/js/chat.js"></script>
 </body>
 </html>
