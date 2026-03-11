@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// Correct absolute path
+// ALWAYS correct path on Railway
 const schemaPath = __dirname + "/schema.sql";
 
 (async () => {
