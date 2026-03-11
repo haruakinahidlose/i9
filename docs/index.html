@@ -1,37 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>NebulaShift — Login</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>NebulaShift</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
+<body>
 
-<body class="auth-body">
-  <div class="auth-container">
-    <h1 class="logo">NebulaShift</h1>
+<div id="login">
+  <h1>NebulaShift</h1>
+  <input id="username" placeholder="Enter username">
+  <button id="loginBtn">Enter</button>
+</div>
 
-    <div class="tabs">
-      <button id="loginTab" class="tab active">Login</button>
-      <button id="signupTab" class="tab">Sign Up</button>
-    </div>
+<div id="app" style="display:none;">
+  <h2 id="welcome"></h2>
+  <textarea id="messages" readonly></textarea>
+  <input id="msgInput" placeholder="Type a message">
+  <button id="sendBtn">Send</button>
+</div>
 
-    <!-- LOGIN FORM -->
-    <div id="loginForm">
-      <input id="loginUsername" class="input" placeholder="Username" />
-      <input id="loginPassword" class="input" type="password" placeholder="Password" />
-      <div id="loginError" class="error"></div>
-      <button id="loginBtn" class="primary-btn">Login</button>
-    </div>
-
-    <!-- SIGNUP FORM -->
-    <div id="signupForm" class="hidden">
-      <input id="signupUsername" class="input" placeholder="Username" />
-      <input id="signupPassword" class="input" type="password" placeholder="Password" />
-      <div id="signupError" class="error"></div>
-      <button id="signupBtn" class="primary-btn">Create Account</button>
-    </div>
-  </div>
-
-  <script type="module" src="auth.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
