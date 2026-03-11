@@ -1,32 +1,12 @@
-import { state } from "/i9/js/ui.js";
+const WS_URL = "wss://i9.up.railway.app";
 
-let ws;
+export function connectWS(onMessage) {
+  const token = localStorage.getItem("token");
+  const socket = new WebSocket(`${WS_URL}?token=${token}`);
 
-export function connectWS() {
-  ws = new WebSocket("wss://i9.up.railway.app");
+  socket.onopen = () => console.log("WS connected");
+  socket.onmessage = (msg) => onMessage(JSON.parse(msg.data));
+  socket.onclose = () => console.log("WS disconnected");
 
-  ws.onopen = () => {
-    ws.send(JSON.stringify({
-      type: "status",
-      user: state.currentUser,
-      status: "online"
-    }));
-  };
-
-  ws.onmessage = e => {
-    const msg = JSON.parse(e.data);
-    if (onMessageCallback) onMessageCallback(msg);
-  };
-}
-
-let onMessageCallback = null;
-
-export function onWSMessage(cb) {
-  onMessageCallback = cb;
-}
-
-export function sendWSMessage(obj) {
-  if (ws && ws.readyState === 1) {
-    ws.send(JSON.stringify(obj));
-  }
+  return socket;
 }
