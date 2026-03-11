@@ -1,21 +1,20 @@
-// FIXED IMPORT PATHS — GitHub Pages SAFE
-import { state, requireAuth, setCurrentUserLabel, setUserPfp } from "/js/ui.js";
-import { connectWS, onWSMessage, sendWSMessage } from "/js/ws.js";
-import { loadFriends, loadFriendRequests, setupFriendActions } from "/js/friends.js";
-import { loadRooms, setupRoomActions } from "/js/rooms.js";
-import { loadDMList } from "/js/dms.js";
+// FIXED IMPORT PATHS FOR /i9/docs/js/
+import { state, requireAuth, setCurrentUserLabel, setUserPfp } from "/i9/js/ui.js";
+import { connectWS, onWSMessage, sendWSMessage } from "/i9/js/ws.js";
+import { loadFriends, loadFriendRequests, setupFriendActions } from "/i9/js/friends.js";
+import { loadRooms, setupRoomActions } from "/i9/js/rooms.js";
+import { loadDMList } from "/i9/js/dms.js";
 
-// API base
 export const API_BASE = "https://i9.up.railway.app/api/";
 
-// DOM elements
+// DOM
 const messagesEl = document.getElementById("messages");
 const sendBtn = document.getElementById("sendBtn");
 const msgInput = document.getElementById("messageInput");
 const logoutBtn = document.getElementById("logoutBtn");
 const changePfpBtn = document.getElementById("changePfpBtn");
 
-// Auth + UI init
+// Init
 requireAuth();
 setCurrentUserLabel();
 connectWS();
@@ -33,14 +32,14 @@ if (logoutBtn) {
   logoutBtn.onclick = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
-    window.location.href = "index.html";
+    window.location.href = "/i9/index.html";
   };
 }
 
 // Change PFP
 if (changePfpBtn) {
   changePfpBtn.onclick = async () => {
-    const url = prompt("Enter image URL for your profile picture:");
+    const url = prompt("Enter image URL:");
     if (!url) return;
     await fetch(`${API_BASE}profile/pfp`, {
       method: "POST",
@@ -62,16 +61,13 @@ if (sendBtn && msgInput) {
   };
 }
 
-// Load profile
 async function initProfile() {
   const res = await fetch(`${API_BASE}profile/${state.currentUser}`);
   const data = await res.json();
-  if (data && data.pfp) {
-    setUserPfp(data.pfp);
-  }
+  if (data && data.pfp) setUserPfp(data.pfp);
 }
 
-// Presence updates
+// Presence
 document.addEventListener("visibilitychange", () => {
   sendWSMessage({
     type: "status",
@@ -93,59 +89,45 @@ export async function loadMessagesForRoom(roomId) {
   const res = await fetch(`${API_BASE}messages/room/${roomId}`, {
     headers: { Authorization: state.token }
   });
-  const data = await res.json();
-  renderMessages(data);
+  renderMessages(await res.json());
 }
 
 export async function loadMessagesForDM(dmId) {
   const res = await fetch(`${API_BASE}messages/dm/${dmId}`, {
     headers: { Authorization: state.token }
   });
-  const data = await res.json();
-  renderMessages(data);
+  renderMessages(await res.json());
 }
 
-// Render messages
 function renderMessages(list) {
-  if (!messagesEl) return;
   messagesEl.innerHTML = "";
   list.forEach(m => appendMessage(m));
 }
 
-// Send message payload
 function sendMessage() {
   const text = msgInput.value.trim();
   if (!text) return;
   if (!state.currentRoom && !state.currentDM) return;
 
-  const payload = {
+  sendWSMessage({
     type: state.currentRoom ? "room" : "dm",
     roomId: state.currentRoom,
     dmId: state.currentDM,
     sender: state.currentUser,
     content: text
-  };
+  });
 
-  sendWSMessage(payload);
   msgInput.value = "";
 }
 
-// WS incoming messages
 onWSMessage(msg => {
   if (msg.type === "status") return;
 
-  if (msg.type === "room" && msg.roomId === state.currentRoom) {
-    appendMessage(msg);
-  }
-  if (msg.type === "dm" && msg.dmId === state.currentDM) {
-    appendMessage(msg);
-  }
+  if (msg.type === "room" && msg.roomId === state.currentRoom) appendMessage(msg);
+  if (msg.type === "dm" && msg.dmId === state.currentDM) appendMessage(msg);
 });
 
-// Append message to UI
 function appendMessage(m) {
-  if (!messagesEl) return;
-
   const div = document.createElement("div");
   div.className = "message";
 
@@ -162,7 +144,7 @@ function appendMessage(m) {
     hour: "2-digit",
     minute: "2-digit"
   });
-  meta.textContent = `${m.sender || "User"} • ${time}`;
+  meta.textContent = `${m.sender} • ${time}`;
 
   const content = document.createElement("div");
   content.textContent = m.content;
