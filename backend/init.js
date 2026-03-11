@@ -1,12 +1,12 @@
 import { pool } from "./db.js";
 import fs from "fs";
-import { dirname } from "path";
+import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// ALWAYS correct path on Railway
-const schemaPath = __dirname + "/schema.sql";
+// Correct path to schema.sql (no matter where it's deployed)
+const schemaPath = join(__dirname, "schema.sql");
 
 (async () => {
     try {
