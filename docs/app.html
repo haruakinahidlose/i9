@@ -71,7 +71,7 @@
 
   </div>
 
-  <!-- TAB CLOAKING -->
+  <!-- TAB CLOAKING (with cache-buster so favicon actually swaps) -->
   <script>
     const activeTitle = "NebulaShift";
     const activeIcon = "/i9/css/nebulashift.png";
@@ -84,10 +84,10 @@
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         document.title = cloakTitle;
-        faviconEl.href = cloakIcon;
+        faviconEl.href = cloakIcon + "?v=" + Date.now();
       } else {
         document.title = activeTitle;
-        faviconEl.href = activeIcon;
+        faviconEl.href = activeIcon + "?v=" + Date.now();
       }
     });
   </script>
