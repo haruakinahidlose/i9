@@ -1,28 +1,41 @@
-import { state, renderList, createListItem, setChatTitle } from "/i9/js/ui.js";
-import { loadMessagesForDM } from "/i9/js/chat.js";
+const API_BASE = "https://i9.up.railway.app/api";
 
-export const API_BASE = "https://i9.up.railway.app/api/";
+export async function loadDMs() {
+  const token = localStorage.getItem("token");
 
-export async function loadDMList() {
-  const res = await fetch(`${API_BASE}dms`, {
-    headers: { Authorization: state.token }
+  const res = await fetch(`${API_BASE}/dms/list`, {
+    headers: { Authorization: token }
   });
-  state.dms = await res.json();
-  renderDMs();
+
+  return await res.json();
 }
 
-function renderDMs() {
-  renderList("dmList", state.dms, dm =>
-    createListItem(dm.username, {
-      username: dm.username,
-      pfp: dm.pfp,
-      status: dm.status,
-      onClick: () => {
-        state.currentDM = dm.username;
-        state.currentRoom = null;
-        setChatTitle(dm.username);
-        loadMessagesForDM(dm.username);
-      }
-    })
-  );
+export async function startDM(user_id) {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_BASE}/dms/start`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ user_id })
+  });
+
+  return await res.json();
+}
+
+export async function sendDM(dm_id, content) {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_BASE}/dms/send`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ dm_id, content })
+  });
+
+  return await res.json();
 }
