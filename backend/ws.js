@@ -8,7 +8,7 @@ export default function setupWS(wss) {
       // presence updates
       if (msg.type === "status") {
         await db.run(
-          "UPDATE users SET status=? WHERE username=?",
+          "UPDATE users SET status=$1 WHERE username=$2",
           [msg.status, msg.user]
         );
 
@@ -23,19 +23,19 @@ export default function setupWS(wss) {
         msg.timestamp = Date.now();
 
         const user = await db.get(
-          "SELECT id FROM users WHERE username=?",
+          "SELECT id FROM users WHERE username=$1",
           [msg.sender]
         );
 
         if (user) {
           if (msg.type === "room") {
             await db.run(
-              "INSERT INTO messages (roomId, dmId, sender, content, timestamp) VALUES (?, NULL, ?, ?, ?)",
+              "INSERT INTO messages (roomId, dmId, sender, content, timestamp) VALUES ($1, NULL, $2, $3, $4)",
               [msg.roomId, user.id, msg.content, msg.timestamp]
             );
           } else {
             await db.run(
-              "INSERT INTO messages (roomId, dmId, sender, content, timestamp) VALUES (NULL, ?, ?, ?, ?)",
+              "INSERT INTO messages (roomId, dmId, sender, content, timestamp) VALUES (NULL, $1, $2, $3, $4)",
               [msg.dmId, user.id, msg.content, msg.timestamp]
             );
           }
