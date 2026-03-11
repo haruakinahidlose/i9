@@ -1,34 +1,53 @@
 CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL,
-  pfp TEXT DEFAULT 'https://i.imgur.com/0y8Ftya.png',
-  status TEXT DEFAULT 'offline'
+    id UUID PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    pfp TEXT,
+    status TEXT DEFAULT 'offline',
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS friends (
-  id SERIAL PRIMARY KEY,
-  requester INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  receiver INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  status TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS dms (
-  id SERIAL PRIMARY KEY,
-  user1 INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  user2 INTEGER REFERENCES users(id) ON DELETE CASCADE
+CREATE TABLE IF NOT EXISTS sessions (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    refresh_token TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS rooms (
-  id SERIAL PRIMARY KEY,
-  name TEXT NOT NULL
+    id UUID PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS messages (
-  id SERIAL PRIMARY KEY,
-  roomId INTEGER REFERENCES rooms(id) ON DELETE CASCADE,
-  dmId INTEGER REFERENCES dms(id) ON DELETE CASCADE,
-  sender INTEGER REFERENCES users(id) ON DELETE CASCADE,
-  content TEXT NOT NULL,
-  timestamp BIGINT NOT NULL
+CREATE TABLE IF NOT EXISTS room_messages (
+    id UUID PRIMARY KEY,
+    room_id UUID REFERENCES rooms(id),
+    user_id UUID REFERENCES users(id),
+    content TEXT NOT NULL,
+    edited BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS dms (
+    id UUID PRIMARY KEY,
+    user1 UUID REFERENCES users(id),
+    user2 UUID REFERENCES users(id)
+);
+
+CREATE TABLE IF NOT EXISTS dm_messages (
+    id UUID PRIMARY KEY,
+    dm_id UUID REFERENCES dms(id),
+    sender UUID REFERENCES users(id),
+    content TEXT NOT NULL,
+    edited BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS friends (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id),
+    friend_id UUID REFERENCES users(id),
+    status TEXT NOT NULL, -- pending, accepted, blocked
+    created_at TIMESTAMP DEFAULT NOW()
 );
