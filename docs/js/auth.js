@@ -32,7 +32,7 @@ document.getElementById("loginBtn").onclick = async () => {
   errorEl.textContent = "";
 
   try {
-    const res = await fetch(`${API_BASE}/login`, {
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password })
@@ -43,8 +43,8 @@ document.getElementById("loginBtn").onclick = async () => {
     if (data.error) {
       errorEl.textContent = data.error;
     } else {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("username", username);
+      localStorage.setItem("token", data.accessToken);
+      localStorage.setItem("username", data.user.username);
       window.location.href = "app.html";
     }
   } catch {
@@ -61,7 +61,7 @@ document.getElementById("signupBtn").onclick = async () => {
   errorEl.textContent = "";
 
   try {
-    const res = await fetch(`${API_BASE}/signup`, {
+    const res = await fetch(`${API_BASE}/auth/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password })
@@ -75,7 +75,7 @@ document.getElementById("signupBtn").onclick = async () => {
     }
 
     // Auto-login
-    const loginRes = await fetch(`${API_BASE}/login`, {
+    const loginRes = await fetch(`${API_BASE}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password })
@@ -83,8 +83,8 @@ document.getElementById("signupBtn").onclick = async () => {
 
     const loginData = await loginRes.json();
 
-    localStorage.setItem("token", loginData.token);
-    localStorage.setItem("username", username);
+    localStorage.setItem("token", loginData.accessToken);
+    localStorage.setItem("username", loginData.user.username);
     window.location.href = "app.html";
   } catch {
     errorEl.textContent = "Network error — backend unreachable.";
