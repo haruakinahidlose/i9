@@ -2,97 +2,49 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NebulaShift</title>
-
-  <!-- Favicon (will cloak automatically) -->
-  <link id="dynamic-favicon" rel="icon" href="/i9/css/nebulashift.png">
-
-  <link rel="stylesheet" href="/i9/css/style.css" />
+  <title>NebulaShift — App</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body class="app-body">
-  <div class="app-root">
-
-    <div class="sidebar">
-
+  <div class="app-shell">
+    <aside class="sidebar">
       <div class="sidebar-section">
-        <h2>Friends</h2>
-        <div class="friend-actions">
-          <input id="addFriendInput" placeholder="Add friend by username" />
-          <button id="addFriendBtn">+</button>
-        </div>
-        <div id="friendsList" class="list"></div>
+        <h2>Rooms</h2>
+        <ul id="roomsList" class="list"></ul>
+        <button id="newRoomBtn" class="secondary-btn">+ New Room</button>
       </div>
 
       <div class="sidebar-section">
-        <h2>Friend Requests</h2>
-        <div id="friendRequests" class="list"></div>
+        <h2>Friends</h2>
+        <ul id="friendsList" class="list"></ul>
+        <button id="addFriendBtn" class="secondary-btn">+ Add Friend</button>
       </div>
 
       <div class="sidebar-section">
         <h2>DMs</h2>
-        <div id="dmList" class="list"></div>
+        <ul id="dmsList" class="list"></ul>
       </div>
 
-      <div class="sidebar-section">
-        <h2>Rooms</h2>
-        <div class="room-actions">
-          <input id="newRoomInput" placeholder="New room name" />
-          <button id="createRoomBtn">+</button>
-        </div>
-        <div id="roomList" class="list"></div>
+      <div class="sidebar-footer">
+        <span id="currentUser"></span>
+        <button id="logoutBtn" class="secondary-btn small">Logout</button>
       </div>
+    </aside>
 
-      <div class="user-bar">
-        <div class="user-info">
-          <img id="userPfp" class="pfp small" src="https://i.imgur.com/0y8Ftya.png">
-          <span id="currentUser"></span>
-        </div>
-        <div class="user-actions">
-          <button id="changePfpBtn">PFP</button>
-          <button id="logoutBtn">Logout</button>
-        </div>
-      </div>
+    <main class="chat-main">
+      <header class="chat-header">
+        <h2 id="chatTitle">Select a room or DM</h2>
+      </header>
 
-    </div>
+      <section id="messages" class="messages"></section>
 
-    <div class="chat-area">
-      <div class="chat-header">
-        <h2 id="chatTitle">Select a DM or Room</h2>
-      </div>
-
-      <div id="messages" class="messages"></div>
-
-      <div class="chat-input">
-        <input id="messageInput" placeholder="Type a message..." />
-        <button id="sendBtn">Send</button>
-      </div>
-    </div>
-
+      <footer class="chat-input-bar">
+        <input id="messageInput" class="input" placeholder="Type a message..." />
+        <button id="sendBtn" class="primary-btn">Send</button>
+      </footer>
+    </main>
   </div>
 
-  <!-- TAB CLOAKING (with cache-buster so favicon actually swaps) -->
-  <script>
-    const activeTitle = "NebulaShift";
-    const activeIcon = "/i9/css/nebulashift.png";
-
-    const cloakTitle = "Google";
-    const cloakIcon = "/i9/css/google.png";
-
-    const faviconEl = document.getElementById("dynamic-favicon");
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.hidden) {
-        document.title = cloakTitle;
-        faviconEl.href = cloakIcon + "?v=" + Date.now();
-      } else {
-        document.title = activeTitle;
-        faviconEl.href = activeIcon + "?v=" + Date.now();
-      }
-    });
-  </script>
-
-  <!-- MAIN APP -->
-  <script type="module" src="/i9/js/chat.js"></script>
+  <script type="module" src="app.js"></script>
 </body>
 </html>
