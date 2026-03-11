@@ -1,5 +1,5 @@
-// Standalone API base for login/signup ONLY
-export const API_BASE = "https://i9.up.railway.app/api/";
+// Backend base (NO trailing slash)
+const API_BASE = "https://i9.up.railway.app/api";
 
 // Tabs
 const loginTab = document.getElementById("loginTab");
@@ -45,7 +45,7 @@ document.getElementById("loginBtn").onclick = async () => {
       localStorage.setItem("username", username);
       window.location.href = "app.html";
     }
-  } catch (err) {
+  } catch {
     errorEl.textContent = "Network error — backend unreachable.";
   }
 };
@@ -84,7 +84,7 @@ document.getElementById("signupBtn").onclick = async () => {
     localStorage.setItem("token", loginData.token);
     localStorage.setItem("username", username);
     window.location.href = "app.html";
-  } catch (err) {
+  } catch {
     errorEl.textContent = "Network error — backend unreachable.";
   }
 };
