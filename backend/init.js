@@ -1,0 +1,42 @@
+import db from "./db.js";
+
+const schema = `
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  pfp TEXT DEFAULT 'https://i.imgur.com/0y8Ftya.png',
+  status TEXT DEFAULT 'offline'
+);
+
+CREATE TABLE IF NOT EXISTS friends (
+  id SERIAL PRIMARY KEY,
+  requester INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  receiver INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  status TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS dms (
+  id SERIAL PRIMARY KEY,
+  user1 INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user2 INTEGER REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS rooms (
+  id SERIAL PRIMARY KEY,
+  name TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+  id SERIAL PRIMARY KEY,
+  roomId INTEGER REFERENCES rooms(id) ON DELETE CASCADE,
+  dmId INTEGER REFERENCES dms(id) ON DELETE CASCADE,
+  sender INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  timestamp BIGINT NOT NULL
+);
+`;
+
+db.run(schema)
+  .then(() => console.log("Postgres schema initialized"))
+  .catch(err => console.error(err));
