@@ -27,7 +27,18 @@ export default function setupWS(wss) {
                 try {
                     const payload = jwt.verify(msg.token, JWT_SECRET);
                     ws.user = payload;
+
+                    // Mark user online
+                    await pool.query(
+                        "UPDATE users SET status = 'online' WHERE id = $1",
+                        [payload.id]
+                    );
+
                     ws.send(JSON.stringify({ type: "auth_ok", user: payload }));
+
+                    // Notify friends
+                    broadcastPresence(wss, payload.id, "online");
+
                 } catch {
                     ws.send(JSON.stringify({ type: "auth_error" }));
                 }
@@ -126,8 +137,40 @@ export default function setupWS(wss) {
             }
         });
 
-        ws.on("close", () => {
-            console.log("WS client disconnected");
+        ws.on("close", async () => {
+            if (ws.user) {
+                await pool.query(
+                    "UPDATE users SET status = 'offline' WHERE id = $1",
+                    [ws.user.id]
+                );
+
+                broadcastPresence(wss, ws.user.id, "offline");
+            }
         });
+    });
+}
+
+// Notify friends of presence change
+async function broadcastPresence(wss, userId, status) {
+    const friends = await pool.query(
+        `SELECT friend_id AS id FROM friends 
+         WHERE user_id = $1 AND status = 'accepted'
+         UNION
+         SELECT user_id AS id FROM friends 
+         WHERE friend_id = $1 AND status = 'accepted'`,
+        [userId]
+    );
+
+    const friendIds = friends.rows.map(r => r.id);
+
+    wss.clients.forEach(client => {
+        if (!client.user) return;
+        if (friendIds.includes(client.user.id)) {
+            client.send(JSON.stringify({
+                type: "presence",
+                userId,
+                status
+            }));
+        }
     });
 }
