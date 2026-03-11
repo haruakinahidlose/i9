@@ -1,35 +1,27 @@
-import { state, setChatTitle, renderList, createListItem } from "./ui.js";
-import { API_BASE, loadMessagesForDM } from "./chat.js";
+import { state, renderList, createListItem, setChatTitle } from "/i9/js/ui.js";
+import { loadMessagesForDM } from "/i9/js/chat.js";
 
-export async function openDM(username) {
-  const res = await fetch(`${API_BASE}/dms/open`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: state.token
-    },
-    body: JSON.stringify({ user: username })
-  });
-  const dm = await res.json();
-  state.currentDM = dm.id;
-  state.currentRoom = null;
-  setChatTitle(`DM with ${username}`);
-  await loadMessagesForDM(dm.id);
-  await loadDMList();
-}
+export const API_BASE = "https://i9.up.railway.app/api/";
 
 export async function loadDMList() {
-  // simple placeholder: show current DM if any
-  const list = [];
-  if (state.currentDM) {
-    list.push({ id: state.currentDM, label: "Current DM" });
-  }
-  renderList("dmList", list, item =>
-    createListItem(item.label, {
+  const res = await fetch(`${API_BASE}dms`, {
+    headers: { Authorization: state.token }
+  });
+  state.dms = await res.json();
+  renderDMs();
+}
+
+function renderDMs() {
+  renderList("dmList", state.dms, dm =>
+    createListItem(dm.username, {
+      username: dm.username,
+      pfp: dm.pfp,
+      status: dm.status,
       onClick: () => {
-        if (state.currentDM) {
-          loadMessagesForDM(state.currentDM);
-        }
+        state.currentDM = dm.username;
+        state.currentRoom = null;
+        setChatTitle(dm.username);
+        loadMessagesForDM(dm.username);
       }
     })
   );
