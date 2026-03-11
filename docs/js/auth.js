@@ -1,4 +1,4 @@
-// Backend base (NO trailing slash)
+// Correct backend URL (NO trailing slash)
 const API_BASE = "https://i9.up.railway.app/api";
 
 // Tabs
@@ -7,6 +7,7 @@ const signupTab = document.getElementById("signupTab");
 const loginForm = document.getElementById("loginForm");
 const signupForm = document.getElementById("signupForm");
 
+// Switch to login
 loginTab.onclick = () => {
   loginTab.classList.add("active");
   signupTab.classList.remove("active");
@@ -14,6 +15,7 @@ loginTab.onclick = () => {
   signupForm.classList.add("hidden");
 };
 
+// Switch to signup
 signupTab.onclick = () => {
   signupTab.classList.add("active");
   loginTab.classList.remove("active");
@@ -21,7 +23,7 @@ signupTab.onclick = () => {
   loginForm.classList.add("hidden");
 };
 
-// Login
+// LOGIN
 document.getElementById("loginBtn").onclick = async () => {
   const username = document.getElementById("loginUsername").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
@@ -50,7 +52,7 @@ document.getElementById("loginBtn").onclick = async () => {
   }
 };
 
-// Signup
+// SIGNUP
 document.getElementById("signupBtn").onclick = async () => {
   const username = document.getElementById("signupUsername").value.trim();
   const password = document.getElementById("signupPassword").value.trim();
@@ -72,7 +74,7 @@ document.getElementById("signupBtn").onclick = async () => {
       return;
     }
 
-    // Auto-login after signup
+    // Auto-login
     const loginRes = await fetch(`${API_BASE}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
