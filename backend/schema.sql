@@ -48,6 +48,6 @@ CREATE TABLE IF NOT EXISTS friends (
     id UUID PRIMARY KEY,
     user_id UUID REFERENCES users(id),
     friend_id UUID REFERENCES users(id),
-    status TEXT NOT NULL, -- pending, accepted, blocked
+    status TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
