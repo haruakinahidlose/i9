@@ -8,6 +8,7 @@ export default function setupWS(wss) {
     wss.on("connection", (ws) => {
         ws.user = null;
         ws.room = null;
+        ws.dm = null;
 
         ws.send(JSON.stringify({ type: "system", message: "Connected to NebulaShift WS" }));
 
@@ -43,7 +44,8 @@ export default function setupWS(wss) {
             //
             if (msg.type === "join_room") {
                 ws.room = msg.roomId;
-                ws.send(JSON.stringify({ type: "joined", roomId: msg.roomId }));
+                ws.dm = null;
+                ws.send(JSON.stringify({ type: "joined_room", roomId: msg.roomId }));
                 return;
             }
 
@@ -54,7 +56,7 @@ export default function setupWS(wss) {
                 if (!ws.room) return;
 
                 const id = uuidv4();
-                const { id: userId } = ws.user;
+                const userId = ws.user.id;
 
                 await pool.query(
                     "INSERT INTO room_messages (id, room_id, user_id, content) VALUES ($1, $2, $3, $4)",
@@ -66,16 +68,61 @@ export default function setupWS(wss) {
                     id,
                     roomId: ws.room,
                     user: ws.user.username,
+                    userId,
                     content: msg.content,
                     created_at: Date.now()
                 };
 
-                // Broadcast to all clients in the same room
                 wss.clients.forEach(client => {
                     if (client.readyState === 1 && client.room === ws.room) {
                         client.send(JSON.stringify(payload));
                     }
                 });
+
+                return;
+            }
+
+            //
+            // JOIN DM
+            //
+            if (msg.type === "join_dm") {
+                ws.dm = msg.dmId;
+                ws.room = null;
+                ws.send(JSON.stringify({ type: "joined_dm", dmId: msg.dmId }));
+                return;
+            }
+
+            //
+            // SEND DM MESSAGE
+            //
+            if (msg.type === "dm_message") {
+                if (!ws.dm) return;
+
+                const id = uuidv4();
+                const userId = ws.user.id;
+
+                await pool.query(
+                    "INSERT INTO dm_messages (id, dm_id, sender, content) VALUES ($1, $2, $3, $4)",
+                    [id, ws.dm, userId, msg.content]
+                );
+
+                const payload = {
+                    type: "dm_message",
+                    id,
+                    dmId: ws.dm,
+                    sender: ws.user.username,
+                    senderId: userId,
+                    content: msg.content,
+                    created_at: Date.now()
+                };
+
+                wss.clients.forEach(client => {
+                    if (client.readyState === 1 && client.dm === ws.dm) {
+                        client.send(JSON.stringify(payload));
+                    }
+                });
+
+                return;
             }
         });
 
