@@ -25,14 +25,14 @@ router.post("/signup", async (req, res) => {
   const { username, password } = req.body;
 
   const existing = await db.get(
-    "SELECT id FROM users WHERE username=?",
+    "SELECT id FROM users WHERE username=$1",
     [username]
   );
   if (existing) return res.json({ error: "Username taken" });
 
   const hashed = await bcrypt.hash(password, 10);
   await db.run(
-    "INSERT INTO users (username, password) VALUES (?, ?)",
+    "INSERT INTO users (username, password) VALUES ($1, $2)",
     [username, hashed]
   );
 
@@ -43,7 +43,7 @@ router.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
   const user = await db.get(
-    "SELECT * FROM users WHERE username=?",
+    "SELECT * FROM users WHERE username=$1",
     [username]
   );
   if (!user) return res.json({ error: "User not found" });
@@ -59,13 +59,13 @@ router.post("/login", async (req, res) => {
 
 router.post("/profile/pfp", auth, async (req, res) => {
   const { url } = req.body;
-  await db.run("UPDATE users SET pfp=? WHERE id=?", [url, req.user.id]);
+  await db.run("UPDATE users SET pfp=$1 WHERE id=$2", [url, req.user.id]);
   res.json({ success: true });
 });
 
 router.get("/profile/:username", async (req, res) => {
   const user = await db.get(
-    "SELECT username, pfp, status FROM users WHERE username=?",
+    "SELECT username, pfp, status FROM users WHERE username=$1",
     [req.params.username]
   );
   res.json(user || {});
@@ -77,13 +77,13 @@ router.post("/friends/request", auth, async (req, res) => {
   const { to } = req.body;
 
   const receiver = await db.get(
-    "SELECT id FROM users WHERE username=?",
+    "SELECT id FROM users WHERE username=$1",
     [to]
   );
   if (!receiver) return res.json({ error: "User not found" });
 
   await db.run(
-    "INSERT INTO friends (requester, receiver, status) VALUES (?, ?, 'pending')",
+    "INSERT INTO friends (requester, receiver, status) VALUES ($1, $2, 'pending')",
     [req.user.id, receiver.id]
   );
 
@@ -94,7 +94,7 @@ router.post("/friends/accept", auth, async (req, res) => {
   const { id } = req.body;
 
   await db.run(
-    "UPDATE friends SET status='accepted' WHERE id=? AND receiver=?",
+    "UPDATE friends SET status='accepted' WHERE id=$1 AND receiver=$2",
     [id, req.user.id]
   );
 
@@ -107,11 +107,11 @@ router.get("/friends/list", auth, async (req, res) => {
     SELECT f.id, u.username, u.pfp, u.status
     FROM friends f
     JOIN users u ON 
-      (u.id = f.requester AND f.receiver = ?) OR
-      (u.id = f.receiver AND f.requester = ?)
+      (u.id = f.requester AND f.receiver = $1) OR
+      (u.id = f.receiver AND f.requester = $1)
     WHERE f.status='accepted'
   `,
-    [req.user.id, req.user.id]
+    [req.user.id]
   );
 
   res.json(rows);
@@ -123,7 +123,7 @@ router.get("/friends/requests", auth, async (req, res) => {
     SELECT f.id, u.username
     FROM friends f
     JOIN users u ON u.id = f.requester
-    WHERE f.receiver=? AND f.status='pending'
+    WHERE f.receiver=$1 AND f.status='pending'
   `,
     [req.user.id]
   );
@@ -137,23 +137,23 @@ router.post("/dms/open", auth, async (req, res) => {
   const { user } = req.body;
 
   const other = await db.get(
-    "SELECT id FROM users WHERE username=?",
+    "SELECT id FROM users WHERE username=$1",
     [user]
   );
   if (!other) return res.json({ error: "User not found" });
 
   let dm = await db.get(
-    "SELECT * FROM dms WHERE (user1=? AND user2=?) OR (user1=? AND user2=?)",
-    [req.user.id, other.id, other.id, req.user.id]
+    "SELECT * FROM dms WHERE (user1=$1 AND user2=$2) OR (user1=$2 AND user2=$1)",
+    [req.user.id, other.id]
   );
 
   if (!dm) {
     await db.run(
-      "INSERT INTO dms (user1, user2) VALUES (?, ?)",
+      "INSERT INTO dms (user1, user2) VALUES ($1, $2)",
       [req.user.id, other.id]
     );
     dm = await db.get(
-      "SELECT * FROM dms WHERE user1=? AND user2=?",
+      "SELECT * FROM dms WHERE user1=$1 AND user2=$2",
       [req.user.id, other.id]
     );
   }
@@ -166,7 +166,7 @@ router.post("/dms/open", auth, async (req, res) => {
 router.post("/rooms/create", auth, async (req, res) => {
   const { name } = req.body;
 
-  await db.run("INSERT INTO rooms (name) VALUES (?)", [name]);
+  await db.run("INSERT INTO rooms (name) VALUES ($1)", [name]);
 
   res.json({ success: true });
 });
@@ -184,7 +184,7 @@ router.get("/messages/room/:id", auth, async (req, res) => {
     SELECT m.id, m.content, m.timestamp, u.username as sender, u.pfp
     FROM messages m
     JOIN users u ON u.id = m.sender
-    WHERE m.roomId=?
+    WHERE m.roomId=$1
     ORDER BY m.timestamp ASC
   `,
     [req.params.id]
@@ -198,7 +198,7 @@ router.get("/messages/dm/:id", auth, async (req, res) => {
     SELECT m.id, m.content, m.timestamp, u.username as sender, u.pfp
     FROM messages m
     JOIN users u ON u.id = m.sender
-    WHERE m.dmId=?
+    WHERE m.dmId=$1
     ORDER BY m.timestamp ASC
   `,
     [req.params.id]
