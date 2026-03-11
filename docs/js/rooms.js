@@ -1,50 +1,41 @@
-import { state, renderList, createListItem, setChatTitle } from "/i9/js/ui.js";
-import { loadMessagesForRoom } from "/i9/js/chat.js";
-import { sendWSMessage } from "/i9/js/ws.js";
-
-export const API_BASE = "https://i9.up.railway.app/api/";
+const API_BASE = "https://i9.up.railway.app/api";
 
 export async function loadRooms() {
-  const res = await fetch(`${API_BASE}rooms`, {
-    headers: { Authorization: state.token }
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_BASE}/rooms/list`, {
+    headers: { Authorization: token }
   });
-  state.rooms = await res.json();
-  renderRooms();
+
+  return await res.json();
 }
 
-export function setupRoomActions() {
-  const btn = document.getElementById("createRoomBtn");
-  const input = document.getElementById("newRoomInput");
+export async function createRoom(name) {
+  const token = localStorage.getItem("token");
 
-  if (!btn || !input) return;
+  const res = await fetch(`${API_BASE}/rooms/create`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ name })
+  });
 
-  btn.onclick = async () => {
-    const name = input.value.trim();
-    if (!name) return;
-
-    await fetch(`${API_BASE}rooms/create`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: state.token
-      },
-      body: JSON.stringify({ name })
-    });
-
-    input.value = "";
-    loadRooms();
-  };
+  return await res.json();
 }
 
-function renderRooms() {
-  renderList("roomList", state.rooms, room =>
-    createListItem(room.name, {
-      onClick: () => {
-        state.currentRoom = room.id;
-        state.currentDM = null;
-        setChatTitle(room.name);
-        loadMessagesForRoom(room.id);
-      }
-    })
-  );
+export async function sendRoomMessage(room_id, content) {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_BASE}/rooms/send`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ room_id, content })
+  });
+
+  return await res.json();
 }
