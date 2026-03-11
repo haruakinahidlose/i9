@@ -1,32 +1,32 @@
-export const WS_URL = "wss://http://i9.up.railway.app";
+import { state } from "/i9/js/ui.js";
 
-let socket = null;
-let wsHandlers = [];
+let ws;
 
 export function connectWS() {
-  socket = new WebSocket(WS_URL);
+  ws = new WebSocket("wss://i9.up.railway.app");
 
-  socket.onopen = () => {
-    console.log("WS connected");
+  ws.onopen = () => {
+    ws.send(JSON.stringify({
+      type: "status",
+      user: state.currentUser,
+      status: "online"
+    }));
   };
 
-  socket.onmessage = event => {
-    const msg = JSON.parse(event.data);
-    wsHandlers.forEach(fn => fn(msg));
-  };
-
-  socket.onclose = () => {
-    console.log("WS closed");
-    setTimeout(connectWS, 2000);
+  ws.onmessage = e => {
+    const msg = JSON.parse(e.data);
+    if (onMessageCallback) onMessageCallback(msg);
   };
 }
 
-export function onWSMessage(handler) {
-  wsHandlers.push(handler);
+let onMessageCallback = null;
+
+export function onWSMessage(cb) {
+  onMessageCallback = cb;
 }
 
-export function sendWSMessage(payload) {
-  if (socket && socket.readyState === WebSocket.OPEN) {
-    socket.send(JSON.stringify(payload));
+export function sendWSMessage(obj) {
+  if (ws && ws.readyState === 1) {
+    ws.send(JSON.stringify(obj));
   }
 }
