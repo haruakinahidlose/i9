@@ -1,85 +1,56 @@
-import { state, renderList, createListItem } from "/i9/js/ui.js";
-import { sendWSMessage } from "/i9/js/ws.js";
-import { loadDMList } from "/i9/js/dms.js";
-
-export const API_BASE = "https://i9.up.railway.app/api/";
+const API_BASE = "https://i9.up.railway.app/api";
 
 export async function loadFriends() {
-  const res = await fetch(`${API_BASE}friends`, {
-    headers: { Authorization: state.token }
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_BASE}/friends/list`, {
+    headers: { Authorization: token }
   });
-  state.friends = await res.json();
-  renderFriends();
+
+  return await res.json();
 }
 
-export async function loadFriendRequests() {
-  const res = await fetch(`${API_BASE}friends/requests`, {
-    headers: { Authorization: state.token }
+export async function addFriend(username) {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(`${API_BASE}/friends/add`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ username })
   });
-  state.friendRequests = await res.json();
-  renderFriendRequests();
+
+  return await res.json();
 }
 
-export function setupFriendActions() {
-  const btn = document.getElementById("addFriendBtn");
-  const input = document.getElementById("addFriendInput");
+export async function acceptFriend(id) {
+  const token = localStorage.getItem("token");
 
-  if (!btn || !input) return;
+  const res = await fetch(`${API_BASE}/friends/accept`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id })
+  });
 
-  btn.onclick = async () => {
-    const username = input.value.trim();
-    if (!username) return;
-
-    await fetch(`${API_BASE}friends/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: state.token
-      },
-      body: JSON.stringify({ username })
-    });
-
-    input.value = "";
-    loadFriendRequests();
-  };
+  return await res.json();
 }
 
-function renderFriends() {
-  renderList("friendsList", state.friends, f =>
-    createListItem(f.username, {
-      username: f.username,
-      pfp: f.pfp,
-      status: f.status,
-      onClick: () => {
-        state.currentDM = f.username;
-        state.currentRoom = null;
-        loadDMList();
-      }
-    })
-  );
-}
+export async function declineFriend(id) {
+  const token = localStorage.getItem("token");
 
-function renderFriendRequests() {
-  renderList("friendRequests", state.friendRequests, r =>
-    createListItem(r.username, {
-      username: r.username,
-      buttons: [
-        {
-          label: "Accept",
-          onClick: async () => {
-            await fetch(`${API_BASE}friends/accept`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: state.token
-              },
-              body: JSON.stringify({ username: r.username })
-            });
-            loadFriends();
-            loadFriendRequests();
-          }
-        }
-      ]
-    })
-  );
+  const res = await fetch(`${API_BASE}/friends/decline`, {
+    method: "POST",
+    headers: {
+      Authorization: token,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ id })
+  });
+
+  return await res.json();
 }
