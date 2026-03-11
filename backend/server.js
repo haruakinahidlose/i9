@@ -1,10 +1,10 @@
-import "./init.js";
 import express from "express";
 import cors from "cors";
 import http from "http";
 import { WebSocketServer } from "ws";
 import routes from "./routes.js";
 import setupWS from "./ws.js";
+import "./init.js"; // auto-create tables
 
 const app = express();
 app.use(cors());
