@@ -1,13 +1,10 @@
-// Correct backend URL (NO trailing slash)
-const API_BASE = "https://i9.up.railway.app/api";
+const API = "https://i9.up.railway.app/api";
 
-// Tabs
 const loginTab = document.getElementById("loginTab");
 const signupTab = document.getElementById("signupTab");
 const loginForm = document.getElementById("loginForm");
 const signupForm = document.getElementById("signupForm");
 
-// Switch to login
 loginTab.onclick = () => {
   loginTab.classList.add("active");
   signupTab.classList.remove("active");
@@ -15,7 +12,6 @@ loginTab.onclick = () => {
   signupForm.classList.add("hidden");
 };
 
-// Switch to signup
 signupTab.onclick = () => {
   signupTab.classList.add("active");
   loginTab.classList.remove("active");
@@ -23,70 +19,44 @@ signupTab.onclick = () => {
   loginForm.classList.add("hidden");
 };
 
-// LOGIN
 document.getElementById("loginBtn").onclick = async () => {
-  const username = document.getElementById("loginUsername").value.trim();
-  const password = document.getElementById("loginPassword").value.trim();
-  const errorEl = document.getElementById("loginError");
+  const username = loginUsername.value.trim();
+  const password = loginPassword.value.trim();
 
-  errorEl.textContent = "";
+  const res = await fetch(`${API}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-      errorEl.textContent = data.error;
-    } else {
-      localStorage.setItem("token", data.accessToken);
-      localStorage.setItem("username", data.user.username);
-      window.location.href = "app.html";
-    }
-  } catch {
-    errorEl.textContent = "Network error — backend unreachable.";
+  const data = await res.json();
+  if (!res.ok) {
+    loginError.textContent = data.error || "Error";
+    return;
   }
+
+  localStorage.setItem("token", data.accessToken);
+  localStorage.setItem("user", JSON.stringify(data.user));
+  location.href = "app.html";
 };
 
-// SIGNUP
 document.getElementById("signupBtn").onclick = async () => {
-  const username = document.getElementById("signupUsername").value.trim();
-  const password = document.getElementById("signupPassword").value.trim();
-  const errorEl = document.getElementById("signupError");
+  const username = signupUsername.value.trim();
+  const password = signupPassword.value.trim();
 
-  errorEl.textContent = "";
+  const res = await fetch(`${API}/auth/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/signup`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-
-    const data = await res.json();
-
-    if (data.error) {
-      errorEl.textContent = data.error;
-      return;
-    }
-
-    // Auto-login
-    const loginRes = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password })
-    });
-
-    const loginData = await loginRes.json();
-
-    localStorage.setItem("token", loginData.accessToken);
-    localStorage.setItem("username", loginData.user.username);
-    window.location.href = "app.html";
-  } catch {
-    errorEl.textContent = "Network error — backend unreachable.";
+  const data = await res.json();
+  if (!res.ok) {
+    signupError.textContent = data.error || "Error";
+    return;
   }
+
+  localStorage.setItem("token", data.accessToken);
+  localStorage.setItem("user", JSON.stringify(data.user));
+  location.href = "app.html";
 };
