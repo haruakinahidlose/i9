@@ -1,3 +1,5 @@
+alert("JS LOADED");
+
 window.onload = () => {
 
   const API = "https://i9.up.railway.app/api";
