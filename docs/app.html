@@ -3,50 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <title>NebulaShift</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="sidebar" class="sidebar">
-  <div class="sidebar-section">
-    <div class="sidebar-title">Friends</div>
-    <div id="friendsList"></div>
-  </div>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-title">Navigation</div>
 
   <div class="sidebar-section">
-    <div class="sidebar-title">DMs</div>
-    <div id="dmList"></div>
-  </div>
-
-  <div class="sidebar-section">
-    <div class="sidebar-title">Groups</div>
-    <div id="roomList"></div>
+    <div id="friendsBtn">Friends</div>
+    <div id="dmsBtn">DMs</div>
+    <div id="groupsBtn">Groups</div>
   </div>
 
   <div class="user-panel">
-    <img id="userPfp" class="user-pfp">
-    <div id="userName" class="user-name"></div>
+    <div class="user-pfp"></div>
+    <div class="user-name" id="usernameDisplay">User</div>
   </div>
 </div>
 
-<button id="toggleSidebar" class="sidebar-toggle">☰</button>
+<button class="sidebar-toggle" id="toggleSidebar">☰</button>
 
-<div id="chatArea" class="chat-area">
-  <div id="messages" class="messages"></div>
+<div class="chat-area">
 
+  <!-- FRIENDS PANEL -->
+  <div id="friendsPanel" class="panel hidden">
+    <h2>Friends</h2>
+
+    <div class="add-box">
+      <input id="addFriendInput" placeholder="Add friend by username...">
+      <button id="addFriendBtn">Add</button>
+    </div>
+
+    <h3>Pending Requests</h3>
+    <div id="pendingList"></div>
+
+    <h3>Your Friends</h3>
+    <div id="friendsList"></div>
+  </div>
+
+  <!-- DM PANEL -->
+  <div id="dmPanel" class="panel hidden">
+    <h2>Direct Messages</h2>
+    <div id="dmList"></div>
+  </div>
+
+  <!-- GROUP PANEL -->
+  <div id="groupsPanel" class="panel hidden">
+    <h2>Groups</h2>
+
+    <div class="add-box">
+      <input id="createGroupInput" placeholder="Group name...">
+      <button id="createGroupBtn">Create</button>
+    </div>
+
+    <div id="groupsList"></div>
+  </div>
+
+  <!-- CHAT MESSAGES -->
+  <div class="messages" id="messages"></div>
+
+  <!-- INPUT BAR -->
   <div class="input-bar">
-    <input id="msgInput" placeholder="Message…">
+    <input id="msgInput" placeholder="Message...">
     <button id="sendBtn">Send</button>
   </div>
+
 </div>
 
-<script src="js/app.js"></script>
-<script src="js/ws.js"></script>
-<script src="js/chat.js"></script>
-<script src="js/rooms.js"></script>
-<script src="js/dms.js"></script>
-<script src="js/friends.js"></script>
-<script src="js/ui.js"></script>
-
+<script src="app.js"></script>
 </body>
 </html>
