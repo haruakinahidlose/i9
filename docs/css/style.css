@@ -1,59 +1,10 @@
 /* GLOBAL */
 body {
   margin: 0;
-  background: #1a0f24; /* dark purple */
+  background: #1a0f24;
   color: #fff;
   font-family: sans-serif;
   overflow: hidden;
-}
-
-/* AUTH PAGE (original restored) */
-.auth-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #1a0f24;
-}
-
-.auth-box {
-  background: #2b2d31;
-  padding: 30px;
-  border-radius: 8px;
-  width: 300px;
-  text-align: center;
-}
-
-.auth-title {
-  margin-bottom: 20px;
-}
-
-.auth-tabs button {
-  width: 50%;
-  padding: 10px;
-  background: #1e1f22;
-  border: none;
-  color: #fff;
-  cursor: pointer;
-}
-
-.auth-tabs .active {
-  background: #404249;
-}
-
-.auth-error {
-  color: #ff6b6b;
-  margin: 5px 0;
-}
-
-.auth-btn {
-  width: 100%;
-  padding: 10px;
-  background: #5865f2;
-  border: none;
-  color: #fff;
-  margin-top: 10px;
-  cursor: pointer;
 }
 
 /* SIDEBAR */
@@ -63,37 +14,30 @@ body {
   left: 0;
   width: 260px;
   height: 100vh;
-  background: #14091d; /* dark purple */
+  background: #14091d;
   padding: 12px;
   box-sizing: border-box;
   overflow-y: auto;
-
-  transform: translateX(0);
-  opacity: 1;
-  transition: transform .25s ease, opacity .2s ease;
-
   z-index: 20;
+  transition: transform .25s ease;
 }
 
 .sidebar.hidden {
   transform: translateX(-100%);
-  opacity: 0;
 }
 
 .sidebar-title {
   font-size: 14px;
   opacity: 0.7;
-  margin: 10px 0 5px;
+  margin-bottom: 10px;
 }
 
 .sidebar-section div {
+  padding: 10px;
   margin: 6px 0;
-  cursor: pointer;
-  padding: 8px 10px;
+  background: #22102f;
   border-radius: 6px;
-  background: #22102f; /* lighter purple */
-  color: #e8d9ff;
-  font-size: 14px;
+  cursor: pointer;
 }
 
 .sidebar-section div:hover {
@@ -106,37 +50,36 @@ body {
   bottom: 10px;
   left: 10px;
   right: 10px;
+  padding: 8px;
+  background: #22102f;
+  border-radius: 6px;
   display: flex;
   align-items: center;
-  padding: 8px;
-  border-radius: 6px;
-  background: #22102f;
 }
 
 .user-pfp {
   width: 32px;
   height: 32px;
-  border-radius: 50%;
   background: #3b2758;
+  border-radius: 50%;
 }
 
 .user-name {
   margin-left: 10px;
-  font-size: 14px;
 }
 
-/* SIDEBAR TOGGLE BUTTON */
+/* SIDEBAR TOGGLE */
 .sidebar-toggle {
   position: fixed;
   top: 10px;
-  left: 270px; /* sits outside sidebar */
+  left: 270px;
   background: #3b2758;
   border: none;
-  color: #fff;
   padding: 8px 12px;
   border-radius: 6px;
-  z-index: 30;
+  color: #fff;
   cursor: pointer;
+  z-index: 30;
   transition: left .25s ease;
 }
 
@@ -151,9 +94,7 @@ body {
   top: 0;
   right: 0;
   bottom: 0;
-  background: #241135; /* main purple */
-  display: flex;
-  flex-direction: column;
+  background: #241135;
   transition: left .25s ease;
 }
 
@@ -161,50 +102,67 @@ body {
   left: 0;
 }
 
-/* MESSAGES AREA */
+/* PANELS */
+.panel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 70px;
+  padding: 20px;
+  background: #241135;
+  overflow-y: auto;
+}
+
+.panel.hidden {
+  display: none;
+}
+
+.add-box {
+  display: flex;
+  margin-bottom: 20px;
+}
+
+.add-box input {
+  flex: 1;
+  padding: 10px;
+  background: #14091d;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+}
+
+.add-box button {
+  margin-left: 10px;
+  padding: 10px 15px;
+  background: #7c3aed;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* MESSAGES */
 .messages {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-
-  bottom: 70px; /* space for input bar */
-  overflow-y: auto;
+  bottom: 70px;
   padding: 20px;
-  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-.msg-cluster {
-  margin-bottom: 18px;
-}
-
-.msg-header {
-  font-size: 13px;
-  opacity: 0.8;
-  margin-bottom: 3px;
-}
-
-.msg-text {
-  margin-left: 10px;
-  margin-bottom: 2px;
-  font-size: 14px;
-}
-
-/* INPUT BAR — LOCKED TO BOTTOM */
+/* INPUT BAR */
 .input-bar {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-
-  display: flex;
   padding: 12px;
-
   background: #1b0f28;
   border-top: 1px solid #3b2758;
-
-  box-sizing: border-box;
-  z-index: 10;
+  display: flex;
 }
 
 .input-bar input {
@@ -214,24 +172,14 @@ body {
   border: none;
   color: #fff;
   border-radius: 6px;
-  font-size: 14px;
-}
-
-.input-bar input::placeholder {
-  color: #9b7ccf;
 }
 
 .input-bar button {
   margin-left: 10px;
   padding: 10px 15px;
-  background: #7c3aed; /* bright purple */
+  background: #7c3aed;
   border: none;
   color: #fff;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 14px;
-}
-
-.input-bar button:hover {
-  background: #8b5cf6;
 }
