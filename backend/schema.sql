@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS room_members (
     UNIQUE (room_id, user_id)
 );
 
--- MESSAGES (ROOM)
+-- ROOM MESSAGES
 CREATE TABLE IF NOT EXISTS messages (
     id SERIAL PRIMARY KEY,
     room_id INTEGER REFERENCES rooms(id) ON DELETE CASCADE,
