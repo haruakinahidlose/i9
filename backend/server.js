@@ -10,6 +10,10 @@ const httpServer = createServer(app);
 app.use(cors());
 app.use(express.json());
 
+app.get("/", (req, res) => {
+    res.json({ status: "NebulaShift backend OK" });
+});
+
 // API routes
 app.use("/api", router);
 
