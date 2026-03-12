@@ -1,13 +1,12 @@
 window.onload = () => {
 
-  const API = "https://your-backend-url"; // not set yet
+  const API = "https://i9.up.railway.app/api";
 
   // SIDEBAR TOGGLE
   document.getElementById("toggleSidebar").onclick = () => {
     document.getElementById("sidebar").classList.toggle("hidden");
   };
 
-  // CLOSE ALL PANELS
   function closePanels() {
     document.getElementById("friendsPanel").classList.add("hidden");
     document.getElementById("dmPanel").classList.add("hidden");
@@ -15,7 +14,6 @@ window.onload = () => {
     document.getElementById("messages").style.display = "block";
   }
 
-  // SIDEBAR BUTTONS
   document.getElementById("friendsBtn").onclick = () => {
     closePanels();
     document.getElementById("friendsPanel").classList.remove("hidden");
@@ -54,7 +52,7 @@ window.onload = () => {
     loadFriends();
   };
 
-  // CREATE GROUP (THIS WAS THE BROKEN PART)
+  // CREATE GROUP
   document.getElementById("createGroupBtn").onclick = async () => {
     const name = document.getElementById("createGroupInput").value.trim();
     if (!name) return;
@@ -78,53 +76,21 @@ window.onload = () => {
     });
 
     const data = await res.json();
+    document.getElementById("pendingList").innerHTML = "";
+    document.getElementById("friendsList").innerHTML = "";
 
-    const pending = document.getElementById("pendingList");
-    const friends = document.getElementById("friendsList");
-
-    pending.innerHTML = "";
-    friends.innerHTML = "";
-
-    data.pending.forEach(req => {
+    (data.pending || []).forEach(req => {
       const div = document.createElement("div");
-      div.innerHTML = `
-        ${req.from}
-        <button onclick="acceptFriend('${req.id}')">Accept</button>
-        <button onclick="rejectFriend('${req.id}')">Reject</button>
-      `;
-      pending.appendChild(div);
+      div.textContent = req.from;
+      document.getElementById("pendingList").appendChild(div);
     });
 
-    data.friends.forEach(f => {
+    (data.friends || []).forEach(f => {
       const div = document.createElement("div");
       div.textContent = f.username;
-      friends.appendChild(div);
+      document.getElementById("friendsList").appendChild(div);
     });
   }
-
-  window.acceptFriend = async function(id) {
-    await fetch(API + "/friends/accept", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({ id })
-    });
-    loadFriends();
-  };
-
-  window.rejectFriend = async function(id) {
-    await fetch(API + "/friends/reject", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({ id })
-    });
-    loadFriends();
-  };
 
   // LOAD DMS
   async function loadDMs() {
@@ -136,10 +102,9 @@ window.onload = () => {
     const list = document.getElementById("dmList");
     list.innerHTML = "";
 
-    data.forEach(dm => {
+    (data || []).forEach(dm => {
       const div = document.createElement("div");
       div.textContent = dm.otherUser;
-      div.onclick = () => openDM(dm.id);
       list.appendChild(div);
     });
   }
@@ -154,41 +119,11 @@ window.onload = () => {
     const list = document.getElementById("groupsList");
     list.innerHTML = "";
 
-    data.forEach(room => {
+    (data || []).forEach(room => {
       const div = document.createElement("div");
       div.textContent = room.name;
-      div.onclick = () => openGroup(room.id);
       list.appendChild(div);
     });
   }
-
-  // OPEN DM
-  async function openDM(id) {
-    closePanels();
-    loadMessages("dm", id);
-  }
-
-  // OPEN GROUP
-  async function openGroup(id) {
-    closePanels();
-    loadMessages("room", id);
-  }
-
-  // LOAD MESSAGES
-  async function loadMessages(type, id) {
-    const res = await fetch(API + `/messages/${type}/${id}`, {
-      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-    });
-
-    const data = await res.json();
-    const box = document.getElementById("messages");
-    box.innerHTML = "";
-
-    data.forEach(msg => {
-      const div = document.createElement("div");
-      div.textContent = `${msg.username}: ${msg.text}`;
-      box.appendChild(div);
-    });
-  };
 
 };
