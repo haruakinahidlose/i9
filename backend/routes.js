@@ -7,7 +7,10 @@ import { pool } from "./db.js";
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
-// Helper: create JWT
+//
+// HELPERS
+//
+
 function createAccessToken(user) {
     return jwt.sign(
         { id: user.id, username: user.username },
@@ -16,12 +19,12 @@ function createAccessToken(user) {
     );
 }
 
-// Helper: auth middleware
 function authRequired(req, res, next) {
     const auth = req.headers.authorization;
     if (!auth || !auth.startsWith("Bearer ")) {
         return res.status(401).json({ error: "Missing token" });
     }
+
     const token = auth.slice(7);
     try {
         const payload = jwt.verify(token, JWT_SECRET);
@@ -32,7 +35,10 @@ function authRequired(req, res, next) {
     }
 }
 
-// Health
+//
+// HEALTH
+//
+
 router.get("/", (req, res) => {
     res.json({ status: "NebulaShift backend online" });
 });
@@ -41,7 +47,6 @@ router.get("/", (req, res) => {
 // AUTH
 //
 
-// Signup
 router.post("/auth/signup", async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password)
@@ -52,9 +57,9 @@ router.post("/auth/signup", async (req, res) => {
             "SELECT id FROM users WHERE username = $1",
             [username]
         );
-        if (existing.rows.length > 0) {
+
+        if (existing.rows.length > 0)
             return res.status(409).json({ error: "Username taken" });
-        }
 
         const hash = await bcrypt.hash(password, 10);
         const id = uuidv4();
@@ -74,7 +79,6 @@ router.post("/auth/signup", async (req, res) => {
     }
 });
 
-// Login
 router.post("/auth/login", async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password)
@@ -85,12 +89,15 @@ router.post("/auth/login", async (req, res) => {
             "SELECT id, username, password_hash FROM users WHERE username = $1",
             [username]
         );
+
         if (result.rows.length === 0)
             return res.status(401).json({ error: "Invalid credentials" });
 
         const user = result.rows[0];
         const ok = await bcrypt.compare(password, user.password_hash);
-        if (!ok) return res.status(401).json({ error: "Invalid credentials" });
+
+        if (!ok)
+            return res.status(401).json({ error: "Invalid credentials" });
 
         const accessToken = createAccessToken(user);
 
@@ -104,13 +111,13 @@ router.post("/auth/login", async (req, res) => {
     }
 });
 
-// Get current user
 router.get("/auth/me", authRequired, async (req, res) => {
     try {
         const result = await pool.query(
             "SELECT id, username, pfp, status FROM users WHERE id = $1",
             [req.user.id]
         );
+
         if (result.rows.length === 0)
             return res.status(404).json({ error: "User not found" });
 
@@ -125,17 +132,20 @@ router.get("/auth/me", authRequired, async (req, res) => {
 // ROOMS
 //
 
-// Create room
 router.post("/rooms/create", authRequired, async (req, res) => {
     const { name } = req.body;
-    if (!name) return res.status(400).json({ error: "Missing room name" });
+
+    if (!name)
+        return res.status(400).json({ error: "Missing room name" });
 
     try {
         const id = uuidv4();
+
         await pool.query(
             "INSERT INTO rooms (id, name) VALUES ($1, $2)",
             [id, name]
         );
+
         res.json({ id, name });
     } catch (err) {
         console.error("Room create error:", err);
@@ -143,12 +153,12 @@ router.post("/rooms/create", authRequired, async (req, res) => {
     }
 });
 
-// List rooms
 router.get("/rooms/list", authRequired, async (req, res) => {
     try {
         const result = await pool.query(
             "SELECT id, name FROM rooms ORDER BY created_at ASC"
         );
+
         res.json({ rooms: result.rows });
     } catch (err) {
         console.error("Room list error:", err);
@@ -156,7 +166,6 @@ router.get("/rooms/list", authRequired, async (req, res) => {
     }
 });
 
-// Room message history
 router.get("/rooms/history/:roomId", authRequired, async (req, res) => {
     const { roomId } = req.params;
 
@@ -179,16 +188,18 @@ router.get("/rooms/history/:roomId", authRequired, async (req, res) => {
 });
 
 //
-// DIRECT MESSAGES (DMs)
+// DIRECT MESSAGES
 //
 
-// Open or create a DM channel
 router.post("/dms/open", authRequired, async (req, res) => {
     const { targetId } = req.body;
     const userId = req.user.id;
 
-    if (!targetId) return res.status(400).json({ error: "Missing targetId" });
-    if (targetId === userId) return res.status(400).json({ error: "Cannot DM yourself" });
+    if (!targetId)
+        return res.status(400).json({ error: "Missing targetId" });
+
+    if (targetId === userId)
+        return res.status(400).json({ error: "Cannot DM yourself" });
 
     try {
         const existing = await pool.query(
@@ -198,11 +209,11 @@ router.post("/dms/open", authRequired, async (req, res) => {
             [userId, targetId]
         );
 
-        if (existing.rows.length > 0) {
+        if (existing.rows.length > 0)
             return res.json({ dmId: existing.rows[0].id });
-        }
 
         const dmId = uuidv4();
+
         await pool.query(
             "INSERT INTO dms (id, user1, user2) VALUES ($1, $2, $3)",
             [dmId, userId, targetId]
@@ -215,7 +226,6 @@ router.post("/dms/open", authRequired, async (req, res) => {
     }
 });
 
-// DM message history
 router.get("/dms/history/:dmId", authRequired, async (req, res) => {
     const { dmId } = req.params;
     const userId = req.user.id;
@@ -247,16 +257,18 @@ router.get("/dms/history/:dmId", authRequired, async (req, res) => {
 });
 
 //
-// FRIENDS (PHASE 5)
+// FRIENDS
 //
 
-// Send friend request
 router.post("/friends/request", authRequired, async (req, res) => {
     const { targetId } = req.body;
     const userId = req.user.id;
 
-    if (!targetId) return res.status(400).json({ error: "Missing targetId" });
-    if (targetId === userId) return res.status(400).json({ error: "Cannot friend yourself" });
+    if (!targetId)
+        return res.status(400).json({ error: "Missing targetId" });
+
+    if (targetId === userId)
+        return res.status(400).json({ error: "Cannot friend yourself" });
 
     try {
         const existing = await pool.query(
@@ -270,6 +282,7 @@ router.post("/friends/request", authRequired, async (req, res) => {
             return res.status(409).json({ error: "Already friends or pending" });
 
         const id = uuidv4();
+
         await pool.query(
             "INSERT INTO friends (id, user_id, friend_id, status) VALUES ($1, $2, $3, $4)",
             [id, userId, targetId, "pending"]
@@ -282,7 +295,6 @@ router.post("/friends/request", authRequired, async (req, res) => {
     }
 });
 
-// Accept friend request
 router.post("/friends/accept", authRequired, async (req, res) => {
     const { requestId } = req.body;
     const userId = req.user.id;
@@ -308,7 +320,6 @@ router.post("/friends/accept", authRequired, async (req, res) => {
     }
 });
 
-// List friends
 router.get("/friends/list", authRequired, async (req, res) => {
     const userId = req.user.id;
 
