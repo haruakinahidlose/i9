@@ -1,176 +1,59 @@
+import { WebSocketServer } from "ws";
 import jwt from "jsonwebtoken";
 import { pool } from "./db.js";
-import { v4 as uuidv4 } from "uuid";
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
-export default function setupWS(wss) {
-    wss.on("connection", (ws) => {
-        ws.user = null;
-        ws.room = null;
-        ws.dm = null;
+export function setupWebSocket(server) {
+    const wss = new WebSocketServer({ server });
 
-        ws.send(JSON.stringify({ type: "system", message: "Connected to NebulaShift WS" }));
+    wss.on("connection", (ws, req) => {
+        const token = req.url?.split("token=")[1];
 
-        ws.on("message", async (raw) => {
-            let msg;
+        if (!token) {
+            ws.close();
+            return;
+        }
+
+        let user;
+        try {
+            user = jwt.verify(token, JWT_SECRET);
+        } catch {
+            ws.close();
+            return;
+        }
+
+        ws.user = user;
+
+        ws.on("message", async (msg) => {
             try {
-                msg = JSON.parse(raw);
-            } catch {
-                return;
-            }
+                const data = JSON.parse(msg);
 
-            //
-            // AUTHENTICATE
-            //
-            if (msg.type === "auth") {
-                try {
-                    const payload = jwt.verify(msg.token, JWT_SECRET);
-                    ws.user = payload;
+                if (data.type === "room_message") {
+                    const id = crypto.randomUUID();
 
-                    // Mark user online
                     await pool.query(
-                        "UPDATE users SET status = 'online' WHERE id = $1",
-                        [payload.id]
+                        "INSERT INTO room_messages (id, room_id, user_id, content) VALUES ($1, $2, $3, $4)",
+                        [id, data.roomId, user.id, data.content]
                     );
 
-                    ws.send(JSON.stringify({ type: "auth_ok", user: payload }));
-
-                    // Notify friends
-                    broadcastPresence(wss, payload.id, "online");
-
-                } catch {
-                    ws.send(JSON.stringify({ type: "auth_error" }));
+                    // Broadcast to all clients
+                    wss.clients.forEach((client) => {
+                        if (client.readyState === 1) {
+                            client.send(JSON.stringify({
+                                type: "room_message",
+                                roomId: data.roomId,
+                                username: user.username,
+                                content: data.content
+                            }));
+                        }
+                    });
                 }
-                return;
-            }
-
-            if (!ws.user) {
-                ws.send(JSON.stringify({ type: "error", message: "Not authenticated" }));
-                return;
-            }
-
-            //
-            // JOIN ROOM
-            //
-            if (msg.type === "join_room") {
-                ws.room = msg.roomId;
-                ws.dm = null;
-                ws.send(JSON.stringify({ type: "joined_room", roomId: msg.roomId }));
-                return;
-            }
-
-            //
-            // SEND ROOM MESSAGE
-            //
-            if (msg.type === "room_message") {
-                if (!ws.room) return;
-
-                const id = uuidv4();
-                const userId = ws.user.id;
-
-                await pool.query(
-                    "INSERT INTO room_messages (id, room_id, user_id, content) VALUES ($1, $2, $3, $4)",
-                    [id, ws.room, userId, msg.content]
-                );
-
-                const payload = {
-                    type: "room_message",
-                    id,
-                    roomId: ws.room,
-                    user: ws.user.username,
-                    userId,
-                    content: msg.content,
-                    created_at: Date.now()
-                };
-
-                wss.clients.forEach(client => {
-                    if (client.readyState === 1 && client.room === ws.room) {
-                        client.send(JSON.stringify(payload));
-                    }
-                });
-
-                return;
-            }
-
-            //
-            // JOIN DM
-            //
-            if (msg.type === "join_dm") {
-                ws.dm = msg.dmId;
-                ws.room = null;
-                ws.send(JSON.stringify({ type: "joined_dm", dmId: msg.dmId }));
-                return;
-            }
-
-            //
-            // SEND DM MESSAGE
-            //
-            if (msg.type === "dm_message") {
-                if (!ws.dm) return;
-
-                const id = uuidv4();
-                const userId = ws.user.id;
-
-                await pool.query(
-                    "INSERT INTO dm_messages (id, dm_id, sender, content) VALUES ($1, $2, $3, $4)",
-                    [id, ws.dm, userId, msg.content]
-                );
-
-                const payload = {
-                    type: "dm_message",
-                    id,
-                    dmId: ws.dm,
-                    sender: ws.user.username,
-                    senderId: userId,
-                    content: msg.content,
-                    created_at: Date.now()
-                };
-
-                wss.clients.forEach(client => {
-                    if (client.readyState === 1 && client.dm === ws.dm) {
-                        client.send(JSON.stringify(payload));
-                    }
-                });
-
-                return;
-            }
-        });
-
-        ws.on("close", async () => {
-            if (ws.user) {
-                await pool.query(
-                    "UPDATE users SET status = 'offline' WHERE id = $1",
-                    [ws.user.id]
-                );
-
-                broadcastPresence(wss, ws.user.id, "offline");
+            } catch (err) {
+                console.error("WS error:", err);
             }
         });
     });
-}
 
-// Notify friends of presence change
-async function broadcastPresence(wss, userId, status) {
-    const friends = await pool.query(
-        `SELECT friend_id AS id FROM friends 
-         WHERE user_id = $1 AND status = 'accepted'
-         UNION
-         SELECT user_id AS id FROM friends 
-         WHERE friend_id = $1 AND status = 'accepted'`,
-        [userId]
-    );
-
-    const friendIds = friends.rows.map(r => r.id);
-
-    wss.clients.forEach(client => {
-        if (!client.user) return;
-        if (friendIds.includes(client.user.id)) {
-            client.send(JSON.stringify({
-                type: "presence",
-                userId,
-                status
-            }));
-        }
-    });
+    console.log("WebSocket server ready");
 }
