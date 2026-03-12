@@ -2,6 +2,17 @@ window.onload = () => {
 
   const API = "https://i9.up.railway.app/api";
 
+  // SAFETY CHECKS
+  if (!document.getElementById("createGroupBtn")) {
+    alert("ERROR: createGroupBtn not found in HTML");
+    return;
+  }
+
+  if (!document.getElementById("groupsPanel")) {
+    alert("ERROR: groupsPanel not found in HTML");
+    return;
+  }
+
   // SIDEBAR TOGGLE
   document.getElementById("toggleSidebar").onclick = () => {
     document.getElementById("sidebar").classList.toggle("hidden");
@@ -37,135 +48,65 @@ window.onload = () => {
     loadGroups();
   };
 
-  // ADD FRIEND
-  document.getElementById("addFriendBtn").onclick = async () => {
-    const username = document.getElementById("addFriendInput").value.trim();
-    if (!username) return;
-
-    await fetch(API + "/friends/request", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({ username })
-    });
-
-    loadFriends();
-  };
-
-  // CREATE GROUP
+  // CREATE GROUP — DEBUG VERSION
   document.getElementById("createGroupBtn").onclick = async () => {
+
+    alert("Create button CLICKED"); // ← if you don't see this, JS never sees the button
+
     const name = document.getElementById("createGroupInput").value.trim();
-    if (!name) return;
+    if (!name) {
+      alert("Enter a group name first");
+      return;
+    }
 
-    const res = await fetch(API + "/rooms/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({ name })
-    });
+    alert("Sending request to backend…");
 
-    loadGroups();
+    try {
+      const res = await fetch(API + "/rooms/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + localStorage.getItem("token")
+        },
+        body: JSON.stringify({ name })
+      });
+
+      alert("Backend responded with status: " + res.status);
+
+      if (!res.ok) {
+        alert("Backend error: " + res.status);
+        return;
+      }
+
+      alert("Group created!");
+      loadGroups();
+
+    } catch (err) {
+      alert("Network error — request failed");
+    }
   };
-
-  // LOAD FRIENDS
-  async function loadFriends() {
-    const res = await fetch(API + "/friends/list", {
-      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-    });
-
-    const data = await res.json();
-
-    const pending = document.getElementById("pendingList");
-    const friends = document.getElementById("friendsList");
-
-    pending.innerHTML = "";
-    friends.innerHTML = "";
-
-    data.pending.forEach(req => {
-      const div = document.createElement("div");
-      div.innerHTML = `
-        ${req.from}
-        <button onclick="acceptFriend('${req.id}')">Accept</button>
-        <button onclick="rejectFriend('${req.id}')">Reject</button>
-      `;
-      pending.appendChild(div);
-    });
-
-    data.friends.forEach(f => {
-      const div = document.createElement("div");
-      div.textContent = f.username;
-      friends.appendChild(div);
-    });
-  }
-
-  window.acceptFriend = async function(id) {
-    await fetch(API + "/friends/accept", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({ id })
-    });
-    loadFriends();
-  };
-
-  window.rejectFriend = async function(id) {
-    await fetch(API + "/friends/reject", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({ id })
-    });
-    loadFriends();
-  };
-
-  // LOAD DMS
-  async function loadDMs() {
-    const res = await fetch(API + "/dms/list", {
-      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-    });
-
-    const data = await res.json();
-    const list = document.getElementById("dmList");
-    list.innerHTML = "";
-
-    data.forEach(dm => {
-      const div = document.createElement("div");
-      div.textContent = dm.otherUser;
-      div.onclick = () => openDM(dm.id);
-      list.appendChild(div);
-    });
-  }
 
   // LOAD GROUPS
   async function loadGroups() {
-    const res = await fetch(API + "/rooms/list", {
-      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-    });
+    try {
+      const res = await fetch(API + "/rooms/list", {
+        headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+      });
 
-    const data = await res.json();
-    const list = document.getElementById("groupsList");
-    list.innerHTML = "";
+      const data = await res.json();
+      const list = document.getElementById("groupsList");
+      list.innerHTML = "";
 
-    data.forEach(room => {
-      const div = document.createElement("div");
-      div.textContent = room.name;
-      div.onclick = () => openGroup(room.id);
-      list.appendChild(div);
-    });
-  }
+      (data || []).forEach(room => {
+        const div = document.createElement("div");
+        div.textContent = room.name;
+        div.onclick = () => openGroup(room.id);
+        list.appendChild(div);
+      });
 
-  // OPEN DM
-  async function openDM(id) {
-    closePanels();
-    loadMessages("dm", id);
+    } catch (e) {
+      alert("Failed to load groups");
+    }
   }
 
   // OPEN GROUP
@@ -176,27 +117,24 @@ window.onload = () => {
 
   // LOAD MESSAGES
   async function loadMessages(type, id) {
-    const res = await fetch(API + `/messages/${type}/${id}`, {
-      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-    });
+    try {
+      const res = await fetch(API + `/messages/${type}/${id}`, {
+        headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+      });
 
-    const data = await res.json();
-    const box = document.getElementById("messages");
-    box.innerHTML = "";
+      const data = await res.json();
+      const box = document.getElementById("messages");
+      box.innerHTML = "";
 
-    data.forEach(msg => {
-      const div = document.createElement("div");
-      div.textContent = `${msg.username}: ${msg.text}`;
-      box.appendChild(div);
-    });
+      (data || []).forEach(msg => {
+        const div = document.createElement("div");
+        div.textContent = `${msg.username}: ${msg.text}`;
+        box.appendChild(div);
+      });
+
+    } catch (e) {
+      alert("Failed to load messages");
+    }
   }
-
-  // SEND MESSAGE
-  document.getElementById("sendBtn").onclick = async () => {
-    const text = document.getElementById("msgInput").value.trim();
-    if (!text) return;
-
-    // TODO: add currentChatType + currentChatId
-  };
 
 };
