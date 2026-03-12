@@ -1,25 +1,22 @@
 import express from "express";
 import cors from "cors";
-import http from "http";
-import { WebSocketServer } from "ws";
-import routes from "./routes.js";
-import setupWS from "./ws.js";
-import "./init.js";
+import router from "./routes.js";
+import { createServer } from "http";
+import { setupWebSocket } from "./ws.js";
 
 const app = express();
+const httpServer = createServer(app);
+
 app.use(cors());
 app.use(express.json());
 
-app.use("/api", routes);
+// API routes
+app.use("/api", router);
 
-const server = http.createServer(app);
-const wss = new WebSocketServer({ server });
+// WebSocket
+setupWebSocket(httpServer);
 
-setupWS(wss);
-
-// THIS IS THE ONLY CORRECT LINE:
 const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => {
-    console.log("NebulaShift backend running on " + PORT);
+httpServer.listen(PORT, () => {
+    console.log("NebulaShift backend running on port", PORT);
 });
