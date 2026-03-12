@@ -7,7 +7,7 @@ body {
   overflow: hidden;
 }
 
-/* AUTH PAGE (original look restored) */
+/* AUTH PAGE (original restored) */
 .auth-body {
   display: flex;
   justify-content: center;
@@ -161,11 +161,17 @@ body {
   left: 0;
 }
 
-/* MESSAGES */
+/* MESSAGES AREA */
 .messages {
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+
+  bottom: 70px; /* space for input bar */
   overflow-y: auto;
   padding: 20px;
+  box-sizing: border-box;
 }
 
 .msg-cluster {
@@ -184,12 +190,21 @@ body {
   font-size: 14px;
 }
 
-/* INPUT BAR (bottom fixed) */
+/* INPUT BAR — LOCKED TO BOTTOM */
 .input-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
   display: flex;
   padding: 12px;
+
   background: #1b0f28;
   border-top: 1px solid #3b2758;
+
+  box-sizing: border-box;
+  z-index: 10;
 }
 
 .input-bar input {
