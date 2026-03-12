@@ -1,19 +1,15 @@
-import { pool } from "./db.js";
+import db from "./backend/db.js";
 import fs from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const schema = fs.readFileSync(new URL("./backend/schema.sql", import.meta.url), "utf8");
 
-// Correct path to schema.sql (no matter where it's deployed)
-const schemaPath = join(__dirname, "schema.sql");
-
-(async () => {
+async function init() {
     try {
-        const schema = fs.readFileSync(schemaPath, "utf8");
-        await pool.query(schema);
+        await db.query(schema);
         console.log("Database initialized");
     } catch (err) {
-        console.error("Init error:", err);
+        console.error("DB init error:", err);
     }
-})();
+}
+
+init();
