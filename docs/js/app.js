@@ -1,18 +1,5 @@
 window.onload = () => {
 
-  // TEST BUTTONS
-  document.getElementById("friendsBtn").onclick = () => {
-    alert("Friends button works!");
-  };
-
-  document.getElementById("dmsBtn").onclick = () => {
-    alert("DMs button works!");
-  };
-
-  document.getElementById("groupsBtn").onclick = () => {
-    alert("Groups button works!");
-  };
-
   const API = "https://your-backend-url"; // replace this
 
   // SIDEBAR TOGGLE
