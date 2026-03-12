@@ -11,17 +11,19 @@ export function setupWebSocket(server) {
         socket.on("message", (raw) => {
             try {
                 const msg = JSON.parse(raw.toString());
-                // { type, roomId, dmTo, content, fromUser }
+
                 if (msg.type === "room_message") {
-                    broadcastToAll({
+                    broadcast({
                         type: "room_message",
                         roomId: msg.roomId,
                         content: msg.content,
                         fromUser: msg.fromUser,
                         created_at: new Date().toISOString()
                     });
-                } else if (msg.type === "dm") {
-                    broadcastToAll({
+                }
+
+                if (msg.type === "dm") {
+                    broadcast({
                         type: "dm",
                         fromUser: msg.fromUser,
                         toUser: msg.dmTo,
@@ -29,8 +31,9 @@ export function setupWebSocket(server) {
                         created_at: new Date().toISOString()
                     });
                 }
+
             } catch (e) {
-                console.error("WS parse error:", e);
+                console.error("WS error:", e);
             }
         });
 
@@ -40,12 +43,10 @@ export function setupWebSocket(server) {
     });
 }
 
-export function broadcastToAll(payload) {
+export function broadcast(payload) {
     if (!wss) return;
     const data = JSON.stringify(payload);
     wss.clients.forEach((client) => {
-        if (client.readyState === 1) {
-            client.send(data);
-        }
+        if (client.readyState === 1) client.send(data);
     });
 }
