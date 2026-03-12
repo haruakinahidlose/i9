@@ -1,19 +1,19 @@
 /* GLOBAL */
 body {
   margin: 0;
-  background: #1a1024; /* dark purple base */
+  background: #1a0f24; /* dark purple */
   color: #fff;
   font-family: sans-serif;
   overflow: hidden;
 }
 
-/* AUTH PAGE (original look) */
+/* AUTH PAGE (original look restored) */
 .auth-body {
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: #1a1024;
+  background: #1a0f24;
 }
 
 .auth-box {
@@ -63,15 +63,14 @@ body {
   left: 0;
   width: 260px;
   height: 100vh;
-  background: #140b1f; /* dark purple */
-  padding: 10px;
+  background: #14091d; /* dark purple */
+  padding: 12px;
   box-sizing: border-box;
   overflow-y: auto;
 
   transform: translateX(0);
   opacity: 1;
-  transition: transform .25s cubic-bezier(.25,.1,.25,1),
-              opacity .20s ease;
+  transition: transform .25s ease, opacity .2s ease;
 
   z-index: 20;
 }
@@ -88,17 +87,17 @@ body {
 }
 
 .sidebar-section div {
-  margin: 5px 0;
+  margin: 6px 0;
   cursor: pointer;
-  padding: 6px 8px;
-  border-radius: 4px;
-  background: #1f102e; /* slightly lighter purple */
-  color: #e5d9ff;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #22102f; /* lighter purple */
+  color: #e8d9ff;
   font-size: 14px;
 }
 
 .sidebar-section div:hover {
-  background: #2a1640;
+  background: #2f1642;
 }
 
 /* USER PANEL */
@@ -109,9 +108,9 @@ body {
   right: 10px;
   display: flex;
   align-items: center;
-  padding: 6px 8px;
-  border-radius: 4px;
-  background: #1f102e;
+  padding: 8px;
+  border-radius: 6px;
+  background: #22102f;
 }
 
 .user-pfp {
@@ -130,18 +129,17 @@ body {
 .sidebar-toggle {
   position: fixed;
   top: 10px;
-  left: 270px; /* just outside sidebar */
+  left: 270px; /* sits outside sidebar */
   background: #3b2758;
   border: none;
   color: #fff;
   padding: 8px 12px;
-  border-radius: 4px;
+  border-radius: 6px;
   z-index: 30;
   cursor: pointer;
-  transition: left .25s cubic-bezier(.25,.1,.25,1);
+  transition: left .25s ease;
 }
 
-/* When sidebar hidden, pull button to edge */
 .sidebar.hidden ~ .sidebar-toggle {
   left: 10px;
 }
@@ -153,13 +151,12 @@ body {
   top: 0;
   right: 0;
   bottom: 0;
-  background: #241135; /* main purple chat area */
+  background: #241135; /* main purple */
   display: flex;
   flex-direction: column;
-  transition: left .25s cubic-bezier(.25,.1,.25,1);
+  transition: left .25s ease;
 }
 
-/* When sidebar hides, chat expands */
 .sidebar.hidden ~ .chat-area {
   left: 0;
 }
@@ -187,10 +184,10 @@ body {
   font-size: 14px;
 }
 
-/* INPUT BAR (locked to bottom) */
+/* INPUT BAR (bottom fixed) */
 .input-bar {
   display: flex;
-  padding: 10px;
+  padding: 12px;
   background: #1b0f28;
   border-top: 1px solid #3b2758;
 }
@@ -198,24 +195,24 @@ body {
 .input-bar input {
   flex: 1;
   padding: 10px;
-  background: #140b1f;
+  background: #14091d;
   border: none;
   color: #fff;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 14px;
 }
 
 .input-bar input::placeholder {
-  color: #8b6fb5;
+  color: #9b7ccf;
 }
 
 .input-bar button {
   margin-left: 10px;
   padding: 10px 15px;
-  background: #7c3aed; /* bright purple button */
+  background: #7c3aed; /* bright purple */
   border: none;
   color: #fff;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
   font-size: 14px;
 }
