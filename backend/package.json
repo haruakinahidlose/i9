@@ -1,6 +1,11 @@
 {
   "name": "nebula-backend",
+  "version": "1.0.0",
   "type": "module",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
   "dependencies": {
     "bcrypt": "^5.1.0",
     "cors": "^2.8.5",
