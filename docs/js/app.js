@@ -1,78 +1,194 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>NebulaShift</title>
-  <link rel="stylesheet" href="css/style.css">
-</head>
-<body>
+window.onload = () => {
 
-<div class="sidebar" id="sidebar">
-  <div class="sidebar-title">Navigation</div>
+  const API = "https://your-backend-url"; // not set yet
 
-  <div class="sidebar-section">
-    <div id="friendsBtn">Friends</div>
-    <div id="dmsBtn">DMs</div>
-    <div id="groupsBtn">Groups</div>
-  </div>
+  // SIDEBAR TOGGLE
+  document.getElementById("toggleSidebar").onclick = () => {
+    document.getElementById("sidebar").classList.toggle("hidden");
+  };
 
-  <div class="user-panel">
-    <div class="user-pfp"></div>
-    <div class="user-name" id="usernameDisplay">User</div>
-  </div>
-</div>
+  // CLOSE ALL PANELS
+  function closePanels() {
+    document.getElementById("friendsPanel").classList.add("hidden");
+    document.getElementById("dmPanel").classList.add("hidden");
+    document.getElementById("groupsPanel").classList.add("hidden");
+    document.getElementById("messages").style.display = "block";
+  }
 
-<button class="sidebar-toggle" id="toggleSidebar">☰</button>
+  // SIDEBAR BUTTONS
+  document.getElementById("friendsBtn").onclick = () => {
+    closePanels();
+    document.getElementById("friendsPanel").classList.remove("hidden");
+    document.getElementById("messages").style.display = "none";
+    loadFriends();
+  };
 
-<div class="chat-area">
+  document.getElementById("dmsBtn").onclick = () => {
+    closePanels();
+    document.getElementById("dmPanel").classList.remove("hidden");
+    document.getElementById("messages").style.display = "none";
+    loadDMs();
+  };
 
-  <!-- FRIENDS PANEL -->
-  <div id="friendsPanel" class="panel hidden">
-    <h2>Friends</h2>
+  document.getElementById("groupsBtn").onclick = () => {
+    closePanels();
+    document.getElementById("groupsPanel").classList.remove("hidden");
+    document.getElementById("messages").style.display = "none";
+    loadGroups();
+  };
 
-    <div class="add-box">
-      <input id="addFriendInput" placeholder="Add friend by username...">
-      <button id="addFriendBtn">Add</button>
-    </div>
+  // ADD FRIEND
+  document.getElementById("addFriendBtn").onclick = async () => {
+    const username = document.getElementById("addFriendInput").value.trim();
+    if (!username) return;
 
-    <h3>Pending Requests</h3>
-    <div id="pendingList"></div>
+    await fetch(API + "/friends/request", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ username })
+    });
 
-    <h3>Your Friends</h3>
-    <div id="friendsList"></div>
-  </div>
+    loadFriends();
+  };
 
-  <!-- DM PANEL -->
-  <div id="dmPanel" class="panel hidden">
-    <h2>Direct Messages</h2>
-    <div id="dmList"></div>
-  </div>
+  // CREATE GROUP (THIS WAS THE BROKEN PART)
+  document.getElementById("createGroupBtn").onclick = async () => {
+    const name = document.getElementById("createGroupInput").value.trim();
+    if (!name) return;
 
-  <!-- GROUP PANEL -->
-  <div id="groupsPanel" class="panel hidden">
-    <h2>Groups</h2>
+    await fetch(API + "/rooms/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ name })
+    });
 
-    <div class="add-box">
-      <input id="createGroupInput" placeholder="Group name...">
-      <button id="createGroupBtn">Create</button>
-    </div>
+    loadGroups();
+  };
 
-    <div id="groupsList"></div>
-  </div>
+  // LOAD FRIENDS
+  async function loadFriends() {
+    const res = await fetch(API + "/friends/list", {
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    });
 
-  <!-- CHAT MESSAGES -->
-  <div class="messages" id="messages"></div>
+    const data = await res.json();
 
-  <!-- INPUT BAR -->
-  <div class="input-bar">
-    <input id="msgInput" placeholder="Message...">
-    <button id="sendBtn">Send</button>
-  </div>
+    const pending = document.getElementById("pendingList");
+    const friends = document.getElementById("friendsList");
 
-</div>
+    pending.innerHTML = "";
+    friends.innerHTML = "";
 
-<!-- ⭐ CORRECT PATH BELOW ⭐ -->
-<script src="js/app.js"></script>
+    data.pending.forEach(req => {
+      const div = document.createElement("div");
+      div.innerHTML = `
+        ${req.from}
+        <button onclick="acceptFriend('${req.id}')">Accept</button>
+        <button onclick="rejectFriend('${req.id}')">Reject</button>
+      `;
+      pending.appendChild(div);
+    });
 
-</body>
-</html>
+    data.friends.forEach(f => {
+      const div = document.createElement("div");
+      div.textContent = f.username;
+      friends.appendChild(div);
+    });
+  }
+
+  window.acceptFriend = async function(id) {
+    await fetch(API + "/friends/accept", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ id })
+    });
+    loadFriends();
+  };
+
+  window.rejectFriend = async function(id) {
+    await fetch(API + "/friends/reject", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ id })
+    });
+    loadFriends();
+  };
+
+  // LOAD DMS
+  async function loadDMs() {
+    const res = await fetch(API + "/dms/list", {
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    });
+
+    const data = await res.json();
+    const list = document.getElementById("dmList");
+    list.innerHTML = "";
+
+    data.forEach(dm => {
+      const div = document.createElement("div");
+      div.textContent = dm.otherUser;
+      div.onclick = () => openDM(dm.id);
+      list.appendChild(div);
+    });
+  }
+
+  // LOAD GROUPS
+  async function loadGroups() {
+    const res = await fetch(API + "/rooms/list", {
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    });
+
+    const data = await res.json();
+    const list = document.getElementById("groupsList");
+    list.innerHTML = "";
+
+    data.forEach(room => {
+      const div = document.createElement("div");
+      div.textContent = room.name;
+      div.onclick = () => openGroup(room.id);
+      list.appendChild(div);
+    });
+  }
+
+  // OPEN DM
+  async function openDM(id) {
+    closePanels();
+    loadMessages("dm", id);
+  }
+
+  // OPEN GROUP
+  async function openGroup(id) {
+    closePanels();
+    loadMessages("room", id);
+  }
+
+  // LOAD MESSAGES
+  async function loadMessages(type, id) {
+    const res = await fetch(API + `/messages/${type}/${id}`, {
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    });
+
+    const data = await res.json();
+    const box = document.getElementById("messages");
+    box.innerHTML = "";
+
+    data.forEach(msg => {
+      const div = document.createElement("div");
+      div.textContent = `${msg.username}: ${msg.text}`;
+      box.appendChild(div);
+    });
+  };
+
+};
