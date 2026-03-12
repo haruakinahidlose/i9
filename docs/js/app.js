@@ -1,142 +1,78 @@
-alert("JS LOADED");
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>NebulaShift</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
-window.onload = () => {
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-title">Navigation</div>
 
-  const API = "https://i9.up.railway.app/api";
+  <div class="sidebar-section">
+    <div id="friendsBtn">Friends</div>
+    <div id="dmsBtn">DMs</div>
+    <div id="groupsBtn">Groups</div>
+  </div>
 
-  // SAFETY CHECKS
-  if (!document.getElementById("createGroupBtn")) {
-    alert("ERROR: createGroupBtn not found in HTML");
-    return;
-  }
+  <div class="user-panel">
+    <div class="user-pfp"></div>
+    <div class="user-name" id="usernameDisplay">User</div>
+  </div>
+</div>
 
-  if (!document.getElementById("groupsPanel")) {
-    alert("ERROR: groupsPanel not found in HTML");
-    return;
-  }
+<button class="sidebar-toggle" id="toggleSidebar">☰</button>
 
-  // SIDEBAR TOGGLE
-  document.getElementById("toggleSidebar").onclick = () => {
-    document.getElementById("sidebar").classList.toggle("hidden");
-  };
+<div class="chat-area">
 
-  // CLOSE ALL PANELS
-  function closePanels() {
-    document.getElementById("friendsPanel").classList.add("hidden");
-    document.getElementById("dmPanel").classList.add("hidden");
-    document.getElementById("groupsPanel").classList.add("hidden");
-    document.getElementById("messages").style.display = "block";
-  }
+  <!-- FRIENDS PANEL -->
+  <div id="friendsPanel" class="panel hidden">
+    <h2>Friends</h2>
 
-  // SIDEBAR BUTTONS
-  document.getElementById("friendsBtn").onclick = () => {
-    closePanels();
-    document.getElementById("friendsPanel").classList.remove("hidden");
-    document.getElementById("messages").style.display = "none";
-    loadFriends();
-  };
+    <div class="add-box">
+      <input id="addFriendInput" placeholder="Add friend by username...">
+      <button id="addFriendBtn">Add</button>
+    </div>
 
-  document.getElementById("dmsBtn").onclick = () => {
-    closePanels();
-    document.getElementById("dmPanel").classList.remove("hidden");
-    document.getElementById("messages").style.display = "none";
-    loadDMs();
-  };
+    <h3>Pending Requests</h3>
+    <div id="pendingList"></div>
 
-  document.getElementById("groupsBtn").onclick = () => {
-    closePanels();
-    document.getElementById("groupsPanel").classList.remove("hidden");
-    document.getElementById("messages").style.display = "none";
-    loadGroups();
-  };
+    <h3>Your Friends</h3>
+    <div id="friendsList"></div>
+  </div>
 
-  // CREATE GROUP — DEBUG VERSION
-  document.getElementById("createGroupBtn").onclick = async () => {
+  <!-- DM PANEL -->
+  <div id="dmPanel" class="panel hidden">
+    <h2>Direct Messages</h2>
+    <div id="dmList"></div>
+  </div>
 
-    alert("Create button CLICKED"); // ← if you don't see this, JS never sees the button
+  <!-- GROUP PANEL -->
+  <div id="groupsPanel" class="panel hidden">
+    <h2>Groups</h2>
 
-    const name = document.getElementById("createGroupInput").value.trim();
-    if (!name) {
-      alert("Enter a group name first");
-      return;
-    }
+    <div class="add-box">
+      <input id="createGroupInput" placeholder="Group name...">
+      <button id="createGroupBtn">Create</button>
+    </div>
 
-    alert("Sending request to backend…");
+    <div id="groupsList"></div>
+  </div>
 
-    try {
-      const res = await fetch(API + "/rooms/create", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": "Bearer " + localStorage.getItem("token")
-        },
-        body: JSON.stringify({ name })
-      });
+  <!-- CHAT MESSAGES -->
+  <div class="messages" id="messages"></div>
 
-      alert("Backend responded with status: " + res.status);
+  <!-- INPUT BAR -->
+  <div class="input-bar">
+    <input id="msgInput" placeholder="Message...">
+    <button id="sendBtn">Send</button>
+  </div>
 
-      if (!res.ok) {
-        alert("Backend error: " + res.status);
-        return;
-      }
+</div>
 
-      alert("Group created!");
-      loadGroups();
+<!-- ⭐ CORRECT PATH BELOW ⭐ -->
+<script src="js/app.js"></script>
 
-    } catch (err) {
-      alert("Network error — request failed");
-    }
-  };
-
-  // LOAD GROUPS
-  async function loadGroups() {
-    try {
-      const res = await fetch(API + "/rooms/list", {
-        headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-      });
-
-      const data = await res.json();
-      const list = document.getElementById("groupsList");
-      list.innerHTML = "";
-
-      (data || []).forEach(room => {
-        const div = document.createElement("div");
-        div.textContent = room.name;
-        div.onclick = () => openGroup(room.id);
-        list.appendChild(div);
-      });
-
-    } catch (e) {
-      alert("Failed to load groups");
-    }
-  }
-
-  // OPEN GROUP
-  async function openGroup(id) {
-    closePanels();
-    loadMessages("room", id);
-  }
-
-  // LOAD MESSAGES
-  async function loadMessages(type, id) {
-    try {
-      const res = await fetch(API + `/messages/${type}/${id}`, {
-        headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-      });
-
-      const data = await res.json();
-      const box = document.getElementById("messages");
-      box.innerHTML = "";
-
-      (data || []).forEach(msg => {
-        const div = document.createElement("div");
-        div.textContent = `${msg.username}: ${msg.text}`;
-        box.appendChild(div);
-      });
-
-    } catch (e) {
-      alert("Failed to load messages");
-    }
-  }
-
-};
+</body>
+</html>
