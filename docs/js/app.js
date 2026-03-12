@@ -1,6 +1,6 @@
 window.onload = () => {
 
-  const API = "https://your-backend-url"; // replace this
+  const API = "https://i9.up.railway.app/api";
 
   // SIDEBAR TOGGLE
   document.getElementById("toggleSidebar").onclick = () => {
@@ -59,7 +59,7 @@ window.onload = () => {
     const name = document.getElementById("createGroupInput").value.trim();
     if (!name) return;
 
-    await fetch(API + "/rooms/create", {
+    const res = await fetch(API + "/rooms/create", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
