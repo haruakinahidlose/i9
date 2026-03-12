@@ -1,34 +1,39 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+--
+-- USERS
+--
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY,
     username TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
     pfp TEXT,
-    status TEXT DEFAULT 'offline',
-    created_at TIMESTAMP DEFAULT NOW()
+    status TEXT DEFAULT 'offline'
 );
 
-CREATE TABLE IF NOT EXISTS sessions (
-    id UUID PRIMARY KEY,
-    user_id UUID REFERENCES users(id),
-    refresh_token TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
-);
-
+--
+-- ROOMS
+--
 CREATE TABLE IF NOT EXISTS rooms (
     id UUID PRIMARY KEY,
-    name TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+--
+-- ROOM MESSAGES
+--
 CREATE TABLE IF NOT EXISTS room_messages (
     id UUID PRIMARY KEY,
-    room_id UUID REFERENCES rooms(id),
-    user_id UUID REFERENCES users(id),
+    room_id UUID REFERENCES rooms(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
-    edited BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+--
+-- DIRECT MESSAGES
+--
 CREATE TABLE IF NOT EXISTS dms (
     id UUID PRIMARY KEY,
     user1 UUID REFERENCES users(id),
@@ -37,17 +42,18 @@ CREATE TABLE IF NOT EXISTS dms (
 
 CREATE TABLE IF NOT EXISTS dm_messages (
     id UUID PRIMARY KEY,
-    dm_id UUID REFERENCES dms(id),
+    dm_id UUID REFERENCES dms(id) ON DELETE CASCADE,
     sender UUID REFERENCES users(id),
     content TEXT NOT NULL,
-    edited BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );
 
+--
+-- FRIENDS
+--
 CREATE TABLE IF NOT EXISTS friends (
     id UUID PRIMARY KEY,
     user_id UUID REFERENCES users(id),
     friend_id UUID REFERENCES users(id),
-    status TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
+    status TEXT NOT NULL
 );
