@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-import router from "./routes.js";
+import router from "./backend/routes.js";
 import { createServer } from "http";
-import { setupWebSocket } from "./ws.js";
+import { setupWebSocket } from "./backend/ws.js";
 
 const app = express();
 const httpServer = createServer(app);
