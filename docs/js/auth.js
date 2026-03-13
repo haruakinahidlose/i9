@@ -1,85 +1,93 @@
 // CHANGE THIS to your backend URL
 const API_BASE = "https://i9.up.railway.app/api";
 
-// UI elements
-const loginBtn = document.getElementById("loginBtn");
-const signupBtn = document.getElementById("signupBtn");
+/* ---------------- UI SWITCHING ---------------- */
 
-const loginUsername = document.getElementById("loginUsername");
-const signupUsername = document.getElementById("signupUsername");
-const signupPfp = document.getElementById("signupPfp");
+document.getElementById("goSignup").onclick = () => {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("signupBox").style.display = "block";
+};
 
-const loginError = document.getElementById("loginError");
-const signupError = document.getElementById("signupError");
+document.getElementById("goLogin").onclick = () => {
+    document.getElementById("signupBox").style.display = "none";
+    document.getElementById("loginBox").style.display = "block";
+};
 
-// ---------------- LOGIN ----------------
-if (loginBtn) {
-    loginBtn.onclick = async () => {
-        loginError.textContent = "";
+/* ---------------- LOGIN ---------------- */
 
-        const username = loginUsername.value.trim();
-        if (!username) {
-            loginError.textContent = "Username required";
+document.getElementById("loginBtn").onclick = async () => {
+    const username = document.getElementById("loginUsername").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+    const errorEl = document.getElementById("loginError");
+
+    errorEl.textContent = "";
+
+    if (!username || !password) {
+        errorEl.textContent = "Username and password required";
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (data.error) {
+            errorEl.textContent = data.error;
             return;
         }
 
-        try {
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username })
-            });
+        // Save token + user
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
-            const data = await res.json();
+        // Go to chat app
+        window.location.href = "app.html";
+    } catch {
+        errorEl.textContent = "Network error";
+    }
+};
 
-            if (data.error) {
-                loginError.textContent = data.error;
-                return;
-            }
+/* ---------------- SIGNUP ---------------- */
 
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.user));
+document.getElementById("signupBtn").onclick = async () => {
+    const username = document.getElementById("signupUsername").value.trim();
+    const password = document.getElementById("signupPassword").value.trim();
+    const pfp_url = document.getElementById("signupPfp").value.trim() || null;
+    const errorEl = document.getElementById("signupError");
 
-            window.location.href = "app.html";
-        } catch (err) {
-            loginError.textContent = "Network error";
-        }
-    };
-}
+    errorEl.textContent = "";
 
-// ---------------- SIGNUP ----------------
-if (signupBtn) {
-    signupBtn.onclick = async () => {
-        signupError.textContent = "";
+    if (!username || !password) {
+        errorEl.textContent = "Username and password required";
+        return;
+    }
 
-        const username = signupUsername.value.trim();
-        const pfp_url = signupPfp.value.trim() || null;
+    try {
+        const res = await fetch(`${API_BASE}/auth/signup`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ username, password, pfp_url })
+        });
 
-        if (!username) {
-            signupError.textContent = "Username required";
+        const data = await res.json();
+
+        if (data.error) {
+            errorEl.textContent = data.error;
             return;
         }
 
-        try {
-            const res = await fetch(`${API_BASE}/auth/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username, pfp_url })
-            });
+        // Save token + user
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
-            const data = await res.json();
-
-            if (data.error) {
-                signupError.textContent = data.error;
-                return;
-            }
-
-            localStorage.setItem("token", data.token);
-            localStorage.setItem("user", JSON.stringify(data.user));
-
-            window.location.href = "app.html";
-        } catch (err) {
-            signupError.textContent = "Network error";
-        }
-    };
-}
+        // Go to chat app
+        window.location.href = "app.html";
+    } catch {
+        errorEl.textContent = "Network error";
+    }
+};
