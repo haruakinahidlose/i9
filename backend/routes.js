@@ -1,11 +1,11 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import db from "./backend/db.js";
+import db from "./db.js";
 
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
-/* ---------------- AUTH ---------------- */
+/* ---------- AUTH ---------- */
 
 router.post("/auth/login", async (req, res) => {
     const { username, pfp_url } = req.body;
@@ -39,7 +39,7 @@ router.post("/auth/login", async (req, res) => {
     }
 });
 
-/* ---------------- AUTH MIDDLEWARE ---------------- */
+/* ---------- AUTH MIDDLEWARE ---------- */
 
 function auth(req, res, next) {
     const auth = req.headers.authorization;
@@ -54,7 +54,7 @@ function auth(req, res, next) {
     }
 }
 
-/* ---------------- PROFILE ---------------- */
+/* ---------- PROFILE ---------- */
 
 router.get("/me", auth, async (req, res) => {
     const result = await db.query(
@@ -73,7 +73,7 @@ router.post("/me/pfp", auth, async (req, res) => {
     res.json(result.rows[0]);
 });
 
-/* ---------------- ROOMS ---------------- */
+/* ---------- ROOMS ---------- */
 
 router.get("/rooms", auth, async (req, res) => {
     const result = await db.query(
@@ -103,7 +103,7 @@ router.post("/rooms", auth, async (req, res) => {
     res.json(room);
 });
 
-/* ---------------- ROOM MESSAGES ---------------- */
+/* ---------- ROOM MESSAGES ---------- */
 
 router.get("/rooms/:id/messages", auth, async (req, res) => {
     const result = await db.query(
@@ -128,7 +128,7 @@ router.post("/rooms/:id/messages", auth, async (req, res) => {
     res.json(result.rows[0]);
 });
 
-/* ---------------- DIRECT MESSAGES ---------------- */
+/* ---------- DIRECT MESSAGES ---------- */
 
 router.get("/dms/:userId", auth, async (req, res) => {
     const other = req.params.userId;
@@ -158,7 +158,7 @@ router.post("/dms/:userId", auth, async (req, res) => {
     res.json(result.rows[0]);
 });
 
-/* ---------------- FRIENDS ---------------- */
+/* ---------- FRIENDS ---------- */
 
 router.get("/friends", auth, async (req, res) => {
     const result = await db.query(
