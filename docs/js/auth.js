@@ -1,62 +1,85 @@
-const API = "https://i9.up.railway.app/api";
+// CHANGE THIS to your backend URL
+const API_BASE = "https://i9.up.railway.app/api";
 
-const loginTab = document.getElementById("loginTab");
-const signupTab = document.getElementById("signupTab");
-const loginForm = document.getElementById("loginForm");
-const signupForm = document.getElementById("signupForm");
+// UI elements
+const loginBtn = document.getElementById("loginBtn");
+const signupBtn = document.getElementById("signupBtn");
 
-loginTab.onclick = () => {
-  loginTab.classList.add("active");
-  signupTab.classList.remove("active");
-  loginForm.classList.remove("hidden");
-  signupForm.classList.add("hidden");
-};
+const loginUsername = document.getElementById("loginUsername");
+const signupUsername = document.getElementById("signupUsername");
+const signupPfp = document.getElementById("signupPfp");
 
-signupTab.onclick = () => {
-  signupTab.classList.add("active");
-  loginTab.classList.remove("active");
-  signupForm.classList.remove("hidden");
-  loginForm.classList.add("hidden");
-};
+const loginError = document.getElementById("loginError");
+const signupError = document.getElementById("signupError");
 
-document.getElementById("loginBtn").onclick = async () => {
-  const username = loginUsername.value.trim();
-  const password = loginPassword.value.trim();
+// ---------------- LOGIN ----------------
+if (loginBtn) {
+    loginBtn.onclick = async () => {
+        loginError.textContent = "";
 
-  const res = await fetch(`${API}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password })
-  });
+        const username = loginUsername.value.trim();
+        if (!username) {
+            loginError.textContent = "Username required";
+            return;
+        }
 
-  const data = await res.json();
-  if (!res.ok) {
-    loginError.textContent = data.error || "Error";
-    return;
-  }
+        try {
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username })
+            });
 
-  localStorage.setItem("token", data.accessToken);
-  localStorage.setItem("user", JSON.stringify(data.user));
-  location.href = "app.html";
-};
+            const data = await res.json();
 
-document.getElementById("signupBtn").onclick = async () => {
-  const username = signupUsername.value.trim();
-  const password = signupPassword.value.trim();
+            if (data.error) {
+                loginError.textContent = data.error;
+                return;
+            }
 
-  const res = await fetch(`${API}/auth/signup`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password })
-  });
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
 
-  const data = await res.json();
-  if (!res.ok) {
-    signupError.textContent = data.error || "Error";
-    return;
-  }
+            window.location.href = "app.html";
+        } catch (err) {
+            loginError.textContent = "Network error";
+        }
+    };
+}
 
-  localStorage.setItem("token", data.accessToken);
-  localStorage.setItem("user", JSON.stringify(data.user));
-  location.href = "app.html";
-};
+// ---------------- SIGNUP ----------------
+if (signupBtn) {
+    signupBtn.onclick = async () => {
+        signupError.textContent = "";
+
+        const username = signupUsername.value.trim();
+        const pfp_url = signupPfp.value.trim() || null;
+
+        if (!username) {
+            signupError.textContent = "Username required";
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, pfp_url })
+            });
+
+            const data = await res.json();
+
+            if (data.error) {
+                signupError.textContent = data.error;
+                return;
+            }
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+
+            window.location.href = "app.html";
+        } catch (err) {
+            signupError.textContent = "Network error";
+        }
+    };
+}
