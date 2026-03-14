@@ -6,7 +6,9 @@ import db from "./db.js";
 const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
 
-/* ---------- AUTH WITH PASSWORDS ---------- */
+/* -----------------------------------------------------------
+   AUTH
+----------------------------------------------------------- */
 
 router.post("/auth/signup", async (req, res) => {
   const { username, password, pfp_url } = req.body;
@@ -88,7 +90,9 @@ router.post("/auth/login", async (req, res) => {
   }
 });
 
-/* ---------- AUTH MIDDLEWARE ---------- */
+/* -----------------------------------------------------------
+   AUTH MIDDLEWARE
+----------------------------------------------------------- */
 
 function auth(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -103,7 +107,30 @@ function auth(req, res, next) {
   }
 }
 
-/* ---------- PROFILE ---------- */
+/* -----------------------------------------------------------
+   USER SEARCH (needed for friends + DMs)
+----------------------------------------------------------- */
+
+router.get("/users/search", auth, async (req, res) => {
+  const username = req.query.username;
+
+  if (!username)
+    return res.status(400).json({ error: "username required" });
+
+  const result = await db.query(
+    "SELECT id, username, pfp_url FROM users WHERE username = $1",
+    [username]
+  );
+
+  if (result.rows.length === 0)
+    return res.status(404).json({ error: "user not found" });
+
+  res.json(result.rows[0]);
+});
+
+/* -----------------------------------------------------------
+   PROFILE
+----------------------------------------------------------- */
 
 router.get("/me", auth, async (req, res) => {
   const result = await db.query(
@@ -122,7 +149,9 @@ router.post("/me/pfp", auth, async (req, res) => {
   res.json(result.rows[0]);
 });
 
-/* ---------- ROOMS ---------- */
+/* -----------------------------------------------------------
+   ROOMS (GROUPS)
+----------------------------------------------------------- */
 
 router.get("/rooms", auth, async (req, res) => {
   const result = await db.query(
@@ -152,7 +181,9 @@ router.post("/rooms", auth, async (req, res) => {
   res.json(room);
 });
 
-/* ---------- ROOM MESSAGES ---------- */
+/* -----------------------------------------------------------
+   ROOM MESSAGES
+----------------------------------------------------------- */
 
 router.get("/rooms/:id/messages", auth, async (req, res) => {
   const result = await db.query(
@@ -177,7 +208,9 @@ router.post("/rooms/:id/messages", auth, async (req, res) => {
   res.json(result.rows[0]);
 });
 
-/* ---------- DIRECT MESSAGES ---------- */
+/* -----------------------------------------------------------
+   DIRECT MESSAGES
+----------------------------------------------------------- */
 
 router.get("/dms/:userId", auth, async (req, res) => {
   const other = req.params.userId;
@@ -207,7 +240,9 @@ router.post("/dms/:userId", auth, async (req, res) => {
   res.json(result.rows[0]);
 });
 
-/* ---------- FRIENDS ---------- */
+/* -----------------------------------------------------------
+   FRIENDS
+----------------------------------------------------------- */
 
 router.get("/friends", auth, async (req, res) => {
   const result = await db.query(
