@@ -2,7 +2,8 @@ window.onload = () => {
 
   const API = "https://i9.up.railway.app/api";
 
-  // SIDEBAR TOGGLE
+  /* ---------------- SIDEBAR ---------------- */
+
   document.getElementById("toggleSidebar").onclick = () => {
     document.getElementById("sidebar").classList.toggle("hidden");
   };
@@ -35,29 +36,45 @@ window.onload = () => {
     loadGroups();
   };
 
-  // ADD FRIEND
+  /* ---------------- USER SEARCH HELPER ---------------- */
+
+  async function getUserByUsername(username) {
+    const res = await fetch(API + "/users/search?username=" + username, {
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  }
+
+  /* ---------------- ADD FRIEND ---------------- */
+
   document.getElementById("addFriendBtn").onclick = async () => {
     const username = document.getElementById("addFriendInput").value.trim();
     if (!username) return;
 
-    await fetch(API + "/friends/request", {
+    const user = await getUserByUsername(username);
+    if (!user) {
+      alert("User not found");
+      return;
+    }
+
+    await fetch(API + "/friends/requests/" + user.id, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         "Authorization": "Bearer " + localStorage.getItem("token")
-      },
-      body: JSON.stringify({ username })
+      }
     });
 
     loadFriends();
   };
 
-  // CREATE GROUP
+  /* ---------------- CREATE GROUP ---------------- */
+
   document.getElementById("createGroupBtn").onclick = async () => {
     const name = document.getElementById("createGroupInput").value.trim();
     if (!name) return;
 
-    await fetch(API + "/rooms/create", {
+    await fetch(API + "/rooms", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -69,49 +86,39 @@ window.onload = () => {
     loadGroups();
   };
 
-  // LOAD FRIENDS
+  /* ---------------- LOAD FRIENDS ---------------- */
+
   async function loadFriends() {
-    const res = await fetch(API + "/friends/list", {
+    const pendingRes = await fetch(API + "/friends/requests", {
       headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
     });
+    const pending = await pendingRes.json();
 
-    const data = await res.json();
+    const friendsRes = await fetch(API + "/friends", {
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    });
+    const friends = await friendsRes.json();
+
     document.getElementById("pendingList").innerHTML = "";
     document.getElementById("friendsList").innerHTML = "";
 
-    (data.pending || []).forEach(req => {
+    pending.forEach(req => {
       const div = document.createElement("div");
-      div.textContent = req.from;
+      div.textContent = req.from_username;
       document.getElementById("pendingList").appendChild(div);
     });
 
-    (data.friends || []).forEach(f => {
+    friends.forEach(f => {
       const div = document.createElement("div");
       div.textContent = f.username;
       document.getElementById("friendsList").appendChild(div);
     });
   }
 
-  // LOAD DMS
-  async function loadDMs() {
-    const res = await fetch(API + "/dms/list", {
-      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
-    });
+  /* ---------------- LOAD GROUPS ---------------- */
 
-    const data = await res.json();
-    const list = document.getElementById("dmList");
-    list.innerHTML = "";
-
-    (data || []).forEach(dm => {
-      const div = document.createElement("div");
-      div.textContent = dm.otherUser;
-      list.appendChild(div);
-    });
-  }
-
-  // LOAD GROUPS
   async function loadGroups() {
-    const res = await fetch(API + "/rooms/list", {
+    const res = await fetch(API + "/rooms", {
       headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
     });
 
@@ -119,9 +126,28 @@ window.onload = () => {
     const list = document.getElementById("groupsList");
     list.innerHTML = "";
 
-    (data || []).forEach(room => {
+    data.forEach(room => {
       const div = document.createElement("div");
       div.textContent = room.name;
+      list.appendChild(div);
+    });
+  }
+
+  /* ---------------- LOAD DMS ---------------- */
+
+  async function loadDMs() {
+    // DMs are based on friends list
+    const friendsRes = await fetch(API + "/friends", {
+      headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    });
+    const friends = await friendsRes.json();
+
+    const list = document.getElementById("dmList");
+    list.innerHTML = "";
+
+    friends.forEach(f => {
+      const div = document.createElement("div");
+      div.textContent = f.username;
       list.appendChild(div);
     });
   }
