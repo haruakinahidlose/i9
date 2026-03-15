@@ -58,3 +58,11 @@ CREATE TABLE IF NOT EXISTS friends (
     created_at TIMESTAMP DEFAULT NOW(),
     UNIQUE (user_id, friend_id)
 );
+CREATE TABLE IF NOT EXISTS friend_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  from_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  to_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  status TEXT NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE (from_user_id, to_user_id)
+);
