@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>NebulaShift</title>
 
-  <!-- CORRECT PATHS FOR /docs FRONTEND -->
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -28,21 +27,28 @@
 
 <div class="chat-area">
 
+  <!-- FRIENDS PANEL -->
   <div id="friendsPanel" class="panel hidden">
     <h2>Friends</h2>
     <div class="add-box">
       <input id="addFriendInput" placeholder="Add friend by username...">
       <button id="addFriendBtn">Add</button>
     </div>
+
+    <h3>Pending Requests</h3>
     <div id="pendingList"></div>
+
+    <h3>Your Friends</h3>
     <div id="friendsList"></div>
   </div>
 
+  <!-- DM PANEL -->
   <div id="dmPanel" class="panel hidden">
     <h2>Direct Messages</h2>
     <div id="dmList"></div>
   </div>
 
+  <!-- GROUPS PANEL -->
   <div id="groupsPanel" class="panel hidden">
     <h2>Groups</h2>
     <div class="add-box">
@@ -52,8 +58,10 @@
     <div id="groupsList"></div>
   </div>
 
+  <!-- MESSAGES -->
   <div class="messages" id="messages"></div>
 
+  <!-- INPUT -->
   <div class="input-bar">
     <input id="msgInput" placeholder="Message...">
     <button id="sendBtn">Send</button>
