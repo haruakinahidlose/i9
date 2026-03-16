@@ -1,6 +1,25 @@
-document.getElementById("createRoomBtn").onclick = async () => {
+async function loadRooms() {
   const token = localStorage.getItem("token");
-  const name = document.getElementById("roomNameInput").value.trim();
+
+  const res = await fetch("https://i9.up.railway.app/api/rooms/list", {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await res.json();
+  const box = document.getElementById("groupsList");
+  box.innerHTML = "";
+
+  data.rooms.forEach(r => {
+    const div = document.createElement("div");
+    div.textContent = "#" + r.name;
+    div.onclick = () => openRoom(r.id);
+    box.appendChild(div);
+  });
+}
+
+document.getElementById("createGroupBtn").onclick = async () => {
+  const token = localStorage.getItem("token");
+  const name = document.getElementById("createGroupInput").value.trim();
   if (!name) return;
 
   await fetch("https://i9.up.railway.app/api/rooms/create", {
@@ -12,10 +31,10 @@ document.getElementById("createRoomBtn").onclick = async () => {
     body: JSON.stringify({ name })
   });
 
-  // ⭐ Refresh the sidebar
-  await loadRooms();
-
-  // ⭐ Optional: clear input + close modal
-  document.getElementById("roomNameInput").value = "";
-  document.getElementById("createRoomModal").style.display = "none";
+  document.getElementById("createGroupInput").value = "";
+  loadRooms();
 };
+
+function openRoom(id) {
+  ws.send(JSON.stringify({ type: "join_room", id }));
+}
