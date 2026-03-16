@@ -31,7 +31,7 @@ async function loadPending() {
     const div = document.createElement("div");
     div.className = "pending-item";
 
-    // FIX: Safari bug — wrap username in a span
+    // Safari fix: wrap username in a span
     const nameSpan = document.createElement("span");
     nameSpan.textContent = req.from_username;
     div.appendChild(nameSpan);
@@ -43,6 +43,9 @@ async function loadPending() {
     const reject = document.createElement("button");
     reject.textContent = "X";
     reject.onclick = () => respond(req.id, "reject");
+
+    // Debug: confirm buttons exist
+    console.log("Buttons created:", accept, reject);
 
     div.appendChild(accept);
     div.appendChild(reject);
