@@ -3,6 +3,7 @@ import cors from "cors";
 import http from "http";
 import routes from "./routes.js";
 import { setupWebSocket } from "./ws.js";
+import "./init.js";   // ⭐ ADD THIS
 
 const app = express();
 
