@@ -206,3 +206,31 @@ body {
 .pending-item button:hover {
   background: #8368ff;
 }
+.pending-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px;
+  background: #1e1e26;
+  border-radius: 6px;
+  margin-bottom: 8px;
+}
+
+.pending-item span {
+  font-size: 16px;
+}
+
+.pending-item button {
+  background: #6a4df5;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 40px;
+}
+
+.pending-item button:hover {
+  background: #8368ff;
+}
