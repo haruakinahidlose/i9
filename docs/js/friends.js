@@ -30,7 +30,11 @@ async function loadPending() {
   data.pending.forEach(req => {
     const div = document.createElement("div");
     div.className = "pending-item";
-    div.textContent = req.from_username + " ";
+
+    // FIX: Safari bug — wrap username in a span
+    const nameSpan = document.createElement("span");
+    nameSpan.textContent = req.from_username;
+    div.appendChild(nameSpan);
 
     const accept = document.createElement("button");
     accept.textContent = "✓";
