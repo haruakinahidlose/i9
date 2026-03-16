@@ -15,3 +15,67 @@ async function loadFriends() {
     box.appendChild(div);
   });
 }
+
+async function loadPending() {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("https://i9.up.railway.app/api/friends/pending", {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+
+  const data = await res.json();
+  const box = document.getElementById("pendingList");
+  box.innerHTML = "";
+
+  data.pending.forEach(req => {
+    const div = document.createElement("div");
+    div.className = "pending-item";
+    div.textContent = req.from_username + " ";
+
+    const accept = document.createElement("button");
+    accept.textContent = "✓";
+    accept.onclick = () => respond(req.id, "accept");
+
+    const reject = document.createElement("button");
+    reject.textContent = "X";
+    reject.onclick = () => respond(req.id, "reject");
+
+    div.appendChild(accept);
+    div.appendChild(reject);
+    box.appendChild(div);
+  });
+}
+
+async function respond(id, action) {
+  const token = localStorage.getItem("token");
+
+  await fetch(`https://i9.up.railway.app/api/friends/${action}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ id })
+  });
+
+  loadPending();
+  loadFriends();
+}
+
+document.getElementById("addFriendBtn").onclick = async () => {
+  const token = localStorage.getItem("token");
+  const username = document.getElementById("addFriendInput").value.trim();
+  if (!username) return;
+
+  await fetch("https://i9.up.railway.app/api/friends/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ username })
+  });
+
+  document.getElementById("addFriendInput").value = "";
+  loadPending();
+};
