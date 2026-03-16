@@ -1,22 +1,21 @@
-async function loadRooms() {
+document.getElementById("createRoomBtn").onclick = async () => {
   const token = localStorage.getItem("token");
+  const name = document.getElementById("roomNameInput").value.trim();
+  if (!name) return;
 
-  const res = await fetch("https://i9.up.railway.app/api/rooms/list", {
-    headers: { Authorization: `Bearer ${token}` }
+  await fetch("https://i9.up.railway.app/api/rooms/create", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ name })
   });
 
-  const data = await res.json();
-  const box = document.getElementById("roomList");
-  box.innerHTML = "";
+  // ⭐ Refresh the sidebar
+  await loadRooms();
 
-  data.rooms.forEach(r => {
-    const div = document.createElement("div");
-    div.textContent = "#" + r.name;
-    div.onclick = () => openRoom(r.id);
-    box.appendChild(div);
-  });
-}
-
-function openRoom(id) {
-  ws.send(JSON.stringify({ type: "join_room", id }));
-}
+  // ⭐ Optional: clear input + close modal
+  document.getElementById("roomNameInput").value = "";
+  document.getElementById("createRoomModal").style.display = "none";
+};
