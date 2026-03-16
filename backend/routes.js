@@ -108,7 +108,7 @@ function auth(req, res, next) {
 }
 
 /* -----------------------------------------------------------
-   USER SEARCH (needed for friends + DMs)
+   USER SEARCH
 ----------------------------------------------------------- */
 
 router.get("/users/search", auth, async (req, res) => {
@@ -150,7 +150,7 @@ router.post("/me/pfp", auth, async (req, res) => {
 });
 
 /* -----------------------------------------------------------
-   ROOMS (GROUPS)
+   ROOMS
 ----------------------------------------------------------- */
 
 router.get("/rooms", auth, async (req, res) => {
@@ -266,16 +266,49 @@ router.get("/friends/requests", auth, async (req, res) => {
   res.json(result.rows);
 });
 
+/* -----------------------------------------------------------
+   AUTO‑FRIEND LOGIC ADDED HERE
+----------------------------------------------------------- */
+
 router.post("/friends/requests/:userId", auth, async (req, res) => {
+  const from = req.user.id;
   const to = req.params.userId;
 
+  // Insert request (if not already sent)
   const result = await db.query(
     `INSERT INTO friend_requests (from_user_id, to_user_id)
      VALUES ($1, $2)
      ON CONFLICT (from_user_id, to_user_id) DO NOTHING
      RETURNING *`,
-    [req.user.id, to]
+    [from, to]
   );
+
+  // Check if the other user already sent a request back
+  const mutual = await db.query(
+    `SELECT * FROM friend_requests
+     WHERE from_user_id = $1 AND to_user_id = $2`,
+    [to, from]
+  );
+
+  if (mutual.rows.length > 0) {
+    // Auto-friend both users
+    await db.query(
+      `INSERT INTO friends (user_id, friend_id)
+       VALUES ($1, $2), ($2, $1)
+       ON CONFLICT DO NOTHING`,
+      [from, to]
+    );
+
+    // Delete both pending requests
+    await db.query(
+      `DELETE FROM friend_requests
+       WHERE (from_user_id=$1 AND to_user_id=$2)
+          OR (from_user_id=$2 AND to_user_id=$1)`,
+      [from, to]
+    );
+
+    return res.json({ autoFriend: true });
+  }
 
   res.json(result.rows[0] || { status: "exists_or_sent" });
 });
