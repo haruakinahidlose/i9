@@ -286,3 +286,49 @@ body {
   color: white !important;
   border: 1px solid #888 !important;
 }
+/* ============================
+   CLEAN FIX FOR PENDING REQUESTS
+   ============================ */
+
+/* Container for each pending request */
+.pending-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #1e1e26;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  gap: 10px;
+}
+
+/* Username text */
+.pending-item span {
+  flex: 1;
+  font-size: 16px;
+  color: #fff;
+}
+
+/* Accept / Reject buttons */
+.pending-item button {
+  background: #6a4df5;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  min-width: 45px;
+  text-align: center;
+}
+
+.pending-item button:hover {
+  background: #8368ff;
+}
+
+/* Ensure pending list is visible */
+#pendingList {
+  display: block;
+  visibility: visible;
+  opacity: 1;
+}
