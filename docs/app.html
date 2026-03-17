@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <title>NebulaShift</title>
 
-  <link rel="stylesheet" href="css/style.css">
+  <!-- Force CSS reload -->
+  <link rel="stylesheet" href="css/style.css?v=20">
 </head>
 <body>
 
@@ -27,8 +28,8 @@
 
 <div class="chat-area">
 
-  <!-- FRIENDS PANEL -->
-  <div id="friendsPanel" class="panel hidden">
+  <!-- ⭐ FRIENDS PANEL ALWAYS VISIBLE FOR DEBUG ⭐ -->
+  <div id="friendsPanel" class="panel" style="display:block !important; border:3px solid magenta; padding:20px;">
     <h2>Friends</h2>
     <div class="add-box">
       <input id="addFriendInput" placeholder="Add friend by username...">
@@ -36,7 +37,15 @@
     </div>
 
     <h3>Pending Requests</h3>
-    <div id="pendingList"></div>
+
+    <!-- ⭐ Hardcoded test content to confirm visibility ⭐ -->
+    <div id="pendingList" style="border:3px solid yellow; padding:10px;">
+      <div class="pending-item" style="border:1px solid lime; padding:10px; display:flex; gap:10px;">
+        <span>TEST_USER</span>
+        <button style="font-size:20px;">✓</button>
+        <button style="font-size:20px;">X</button>
+      </div>
+    </div>
 
     <h3>Your Friends</h3>
     <div id="friendsList"></div>
