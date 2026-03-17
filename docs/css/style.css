@@ -1,3 +1,6 @@
+/* ============================
+   GLOBAL
+============================ */
 body {
   margin: 0;
   background: #1a0f24;
@@ -6,7 +9,9 @@ body {
   overflow: hidden;
 }
 
-/* SIDEBAR */
+/* ============================
+   SIDEBAR
+============================ */
 .sidebar {
   position: fixed;
   top: 0;
@@ -43,7 +48,9 @@ body {
   background: #2f1642;
 }
 
-/* USER PANEL */
+/* ============================
+   USER PANEL
+============================ */
 .user-panel {
   position: absolute;
   bottom: 10px;
@@ -67,7 +74,9 @@ body {
   margin-left: 10px;
 }
 
-/* SIDEBAR TOGGLE */
+/* ============================
+   SIDEBAR TOGGLE
+============================ */
 .sidebar-toggle {
   position: fixed;
   top: 10px;
@@ -86,7 +95,9 @@ body {
   left: 10px;
 }
 
-/* CHAT AREA */
+/* ============================
+   CHAT AREA
+============================ */
 .chat-area {
   position: fixed;
   left: 260px;
@@ -101,7 +112,9 @@ body {
   left: 0;
 }
 
-/* PANELS */
+/* ============================
+   PANELS
+============================ */
 .panel {
   position: absolute;
   top: 0;
@@ -141,7 +154,9 @@ body {
   cursor: pointer;
 }
 
-/* MESSAGES */
+/* ============================
+   MESSAGES
+============================ */
 .messages {
   position: absolute;
   top: 0;
@@ -152,7 +167,9 @@ body {
   overflow-y: auto;
 }
 
-/* INPUT BAR */
+/* ============================
+   INPUT BAR
+============================ */
 .input-bar {
   position: absolute;
   bottom: 0;
@@ -182,115 +199,10 @@ body {
   border-radius: 6px;
   cursor: pointer;
 }
-.pending-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #1a1a22;
-  padding: 8px;
-  border-radius: 6px;
-  margin-bottom: 6px;
-}
 
-.pending-item button {
-  background: #6a4df5;
-  color: white;
-  border: none;
-  padding: 6px 10px;
-  margin-left: 8px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.pending-item button:hover {
-  background: #8368ff;
-}
-.pending-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  background: #1e1e26;
-  border-radius: 6px;
-  margin-bottom: 8px;
-}
-
-.pending-item span {
-  font-size: 16px;
-}
-
-.pending-item button {
-  background: #6a4df5;
-  color: white;
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  min-width: 40px;
-}
-
-.pending-item button:hover {
-  background: #8368ff;
-}
-/* ⭐ FORCE SHOW FRIEND REQUEST BUTTONS ⭐ */
-.pending-item {
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  padding: 10px !important;
-  border: 2px solid yellow !important;
-}
-
-.pending-item button {
-  display: inline-block !important;
-  font-size: 24px !important;
-  padding: 6px 12px !important;
-  background: #444 !important;
-  color: white !important;
-  border: 1px solid #888 !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-#pendingList {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  border: 2px solid red !important;
-  padding: 10px !important;
-}
-/* ⭐ FORCE SHOW FRIENDS PANEL ⭐ */
-#friendsPanel {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  height: auto !important;
-  padding: 20px !important;
-  border: 3px solid magenta !important;
-  background: rgba(0,0,0,0.4) !important;
-}
-#pendingList {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  border: 3px solid yellow !important;
-  padding: 10px !important;
-}
-.pending-item button {
-  display: inline-block !important;
-  font-size: 24px !important;
-  padding: 6px 12px !important;
-  background: #444 !important;
-  color: white !important;
-  border: 1px solid #888 !important;
-}
 /* ============================
-   CLEAN FIX FOR PENDING REQUESTS
-   ============================ */
-
-/* Container for each pending request */
+   PENDING FRIEND REQUESTS
+============================ */
 .pending-item {
   display: flex;
   align-items: center;
@@ -302,14 +214,12 @@ body {
   gap: 10px;
 }
 
-/* Username text */
 .pending-item span {
   flex: 1;
   font-size: 16px;
   color: #fff;
 }
 
-/* Accept / Reject buttons */
 .pending-item button {
   background: #6a4df5;
   color: white;
@@ -329,6 +239,4 @@ body {
 /* Ensure pending list is visible */
 #pendingList {
   display: block;
-  visibility: visible;
-  opacity: 1;
 }
