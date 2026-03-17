@@ -255,26 +255,35 @@ router.get("/friends", auth, async (req, res) => {
   res.json(result.rows);
 });
 
+/* -----------------------------------------------------------
+   ⭐ FIXED FRIEND REQUESTS ROUTE ⭐
+----------------------------------------------------------- */
+
 router.get("/friends/requests", auth, async (req, res) => {
   const result = await db.query(
-    `SELECT fr.*, u.username AS from_username
+    `SELECT 
+        fr.id,
+        fr.from_user_id,
+        fr.to_user_id,
+        fr.status,
+        u.username AS from_username
      FROM friend_requests fr
      JOIN users u ON u.id = fr.from_user_id
      WHERE fr.to_user_id = $1 AND fr.status = 'pending'`,
     [req.user.id]
   );
-  res.json(result.rows);
+
+  res.json({ pending: result.rows });
 });
 
 /* -----------------------------------------------------------
-   AUTO‑FRIEND LOGIC ADDED HERE
+   AUTO‑FRIEND LOGIC
 ----------------------------------------------------------- */
 
 router.post("/friends/requests/:userId", auth, async (req, res) => {
   const from = req.user.id;
   const to = req.params.userId;
 
-  // Insert request (if not already sent)
   const result = await db.query(
     `INSERT INTO friend_requests (from_user_id, to_user_id)
      VALUES ($1, $2)
@@ -283,7 +292,6 @@ router.post("/friends/requests/:userId", auth, async (req, res) => {
     [from, to]
   );
 
-  // Check if the other user already sent a request back
   const mutual = await db.query(
     `SELECT * FROM friend_requests
      WHERE from_user_id = $1 AND to_user_id = $2`,
@@ -291,7 +299,6 @@ router.post("/friends/requests/:userId", auth, async (req, res) => {
   );
 
   if (mutual.rows.length > 0) {
-    // Auto-friend both users
     await db.query(
       `INSERT INTO friends (user_id, friend_id)
        VALUES ($1, $2), ($2, $1)
@@ -299,7 +306,6 @@ router.post("/friends/requests/:userId", auth, async (req, res) => {
       [from, to]
     );
 
-    // Delete both pending requests
     await db.query(
       `DELETE FROM friend_requests
        WHERE (from_user_id=$1 AND to_user_id=$2)
