@@ -38,14 +38,14 @@ async function loadPending() {
   data.pending.forEach(req => {
 
     // ⭐ FRONTEND FALLBACK: ensure request has an ID
-    if (!req.id) {
-      req.id =
-        req.request_id ||
-        req.from_id ||
-        req.to_id ||
-        req.user_id ||
-        Math.floor(Math.random() * 999999);
-    }
+    req.id =
+      req.id ||
+      req.request_id ||
+      req.from_id ||
+      req.to_id ||
+      req.user_id ||
+      req.friend_request_id ||
+      Math.floor(Math.random() * 999999);
 
     const div = document.createElement("div");
     div.className = "pending-item";
@@ -98,7 +98,6 @@ document.getElementById("addFriendBtn").onclick = async () => {
   const username = document.getElementById("addFriendInput").value.trim();
   if (!username) return;
 
-  // Search user
   const searchRes = await fetch(
     `https://i9.up.railway.app/users/search?username=${encodeURIComponent(username)}`,
     { headers: { Authorization: `Bearer ${token}` } }
@@ -111,7 +110,6 @@ document.getElementById("addFriendBtn").onclick = async () => {
 
   const user = await searchRes.json();
 
-  // Send friend request
   await fetch(`https://i9.up.railway.app/friends/requests/${user.id}`, {
     method: "POST",
     headers: {
