@@ -1,7 +1,7 @@
 async function loadFriends() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("https://i9.up.railway.app/api/friends/list", {
+  const res = await fetch("https://i9.up.railway.app/friends", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
@@ -9,7 +9,7 @@ async function loadFriends() {
   const box = document.getElementById("friendsList");
   box.innerHTML = "";
 
-  data.friends.forEach(f => {
+  data.forEach(f => {
     const div = document.createElement("div");
     div.textContent = f.username;
     box.appendChild(div);
@@ -19,7 +19,7 @@ async function loadFriends() {
 async function loadPending() {
   const token = localStorage.getItem("token");
 
-  const res = await fetch("https://i9.up.railway.app/api/friends/pending", {
+  const res = await fetch("https://i9.up.railway.app/friends/requests", {
     headers: { Authorization: `Bearer ${token}` }
   });
 
@@ -27,11 +27,10 @@ async function loadPending() {
   const box = document.getElementById("pendingList");
   box.innerHTML = "";
 
-  data.pending.forEach(req => {
+  data.forEach(req => {
     const div = document.createElement("div");
     div.className = "pending-item";
 
-    // Safari fix: wrap username in a span
     const nameSpan = document.createElement("span");
     nameSpan.textContent = req.from_username;
     div.appendChild(nameSpan);
@@ -44,9 +43,6 @@ async function loadPending() {
     reject.textContent = "X";
     reject.onclick = () => respond(req.id, "reject");
 
-    // Debug: confirm buttons exist
-    console.log("Buttons created:", accept, reject);
-
     div.appendChild(accept);
     div.appendChild(reject);
     box.appendChild(div);
@@ -56,13 +52,12 @@ async function loadPending() {
 async function respond(id, action) {
   const token = localStorage.getItem("token");
 
-  await fetch(`https://i9.up.railway.app/api/friends/${action}`, {
+  await fetch(`https://i9.up.railway.app/friends/requests/${id}/${action}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ id })
+    }
   });
 
   loadPending();
@@ -74,13 +69,22 @@ document.getElementById("addFriendBtn").onclick = async () => {
   const username = document.getElementById("addFriendInput").value.trim();
   if (!username) return;
 
-  await fetch("https://i9.up.railway.app/api/friends/add", {
+  // First: search user by username
+  const searchRes = await fetch(
+    `https://i9.up.railway.app/users/search?username=${encodeURIComponent(username)}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+
+  if (!searchRes.ok) return alert("User not found");
+  const user = await searchRes.json();
+
+  // Then: send friend request
+  await fetch(`https://i9.up.railway.app/friends/requests/${user.id}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ username })
+    }
   });
 
   document.getElementById("addFriendInput").value = "";
