@@ -234,3 +234,30 @@ body {
 .pending-item button:hover {
   background: #8368ff;
 }
+/* ⭐ FORCE SHOW FRIEND REQUEST BUTTONS ⭐ */
+.pending-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px !important;
+  border: 2px solid yellow !important;
+}
+
+.pending-item button {
+  display: inline-block !important;
+  font-size: 24px !important;
+  padding: 6px 12px !important;
+  background: #444 !important;
+  color: white !important;
+  border: 1px solid #888 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+#pendingList {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  border: 2px solid red !important;
+  padding: 10px !important;
+}
