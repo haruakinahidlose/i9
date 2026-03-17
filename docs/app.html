@@ -28,24 +28,17 @@
 
 <div class="chat-area">
 
-  <!-- ⭐ FRIENDS PANEL ALWAYS VISIBLE FOR DEBUG ⭐ -->
-  <div id="friendsPanel" class="panel" style="display:block !important; border:3px solid magenta; padding:20px;">
+  <!-- ⭐ CLEAN FRIENDS PANEL (NO DEBUG, NO TEST_USER) ⭐ -->
+  <div id="friendsPanel" class="panel hidden">
     <h2>Friends</h2>
+
     <div class="add-box">
       <input id="addFriendInput" placeholder="Add friend by username...">
       <button id="addFriendBtn">Add</button>
     </div>
 
     <h3>Pending Requests</h3>
-
-    <!-- ⭐ Hardcoded test content to confirm visibility ⭐ -->
-    <div id="pendingList" style="border:3px solid yellow; padding:10px;">
-      <div class="pending-item" style="border:1px solid lime; padding:10px; display:flex; gap:10px;">
-        <span>TEST_USER</span>
-        <button style="font-size:20px;">✓</button>
-        <button style="font-size:20px;">X</button>
-      </div>
-    </div>
+    <div id="pendingList"></div>
 
     <h3>Your Friends</h3>
     <div id="friendsList"></div>
@@ -81,7 +74,7 @@
 <!-- ⭐ ALL REQUIRED JS FILES IN CORRECT ORDER ⭐ -->
 <script src="js/ws.js?v=10"></script>
 <script src="js/ui.js?v=10"></script>
-<script src="js/friends.js?v=10"></script>
+<script src="js/friends.js?v=51"></script>
 <script src="js/dms.js?v=10"></script>
 <script src="js/rooms.js?v=10"></script>
 <script src="js/app.js?v=10"></script>
